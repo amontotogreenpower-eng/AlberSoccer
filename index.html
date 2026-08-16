@@ -44,49 +44,53 @@
   #touch{position:absolute;inset:0;pointer-events:none;display:none}
   #touch.on{display:block}
   /* pad direccional de 8 direcciones */
-  #dpad{position:absolute;left:26px;bottom:26px;width:158px;height:158px;border-radius:50%;
+  #dpad{position:absolute;left:24px;bottom:24px;width:212px;height:212px;border-radius:50%;
     pointer-events:auto;touch-action:none;cursor:pointer;
-    background:radial-gradient(circle at 50% 42%,rgba(28,44,36,.86),rgba(6,14,10,.9));
-    border:2px solid rgba(160,220,185,.4);box-shadow:0 10px 30px rgba(0,0,0,.55),
-      inset 0 2px 0 rgba(255,255,255,.12), inset 0 -8px 18px rgba(0,0,0,.5)}
+    background:radial-gradient(circle at 50% 42%,rgba(30,48,38,.9),rgba(5,12,9,.93));
+    border:3px solid rgba(160,220,185,.45);box-shadow:0 12px 34px rgba(0,0,0,.6),
+      inset 0 3px 0 rgba(255,255,255,.13), inset 0 -10px 22px rgba(0,0,0,.55)}
   .dp-seg{position:absolute;inset:0;pointer-events:none}
-  .dp-seg::after{content:'';position:absolute;left:50%;top:9px;width:0;height:0;margin-left:-11px;
-    border-left:11px solid transparent;border-right:11px solid transparent;
-    border-bottom:17px solid rgba(200,240,215,.42);
-    filter:drop-shadow(0 1px 1px rgba(0,0,0,.6));transition:.06s}
-  .dp-seg.on::after{border-bottom-color:#ffe066;transform:scale(1.22) translateY(-2px)}
-  .dp-knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;
+  .dp-seg::after{content:'';position:absolute;left:50%;top:11px;width:0;height:0;margin-left:-15px;
+    border-left:15px solid transparent;border-right:15px solid transparent;
+    border-bottom:23px solid rgba(205,240,220,.5);
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.65));transition:.06s}
+  .dp-seg.on::after{border-bottom-color:#ffe066;transform:scale(1.3) translateY(-3px);
+    filter:drop-shadow(0 0 8px rgba(255,224,102,.8))}
+  .dp-knob{position:absolute;left:50%;top:50%;width:70px;height:70px;margin:-35px 0 0 -35px;
     border-radius:50%;pointer-events:none;
-    background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(0,0,0,.35));
-    border:1px solid rgba(255,255,255,.22)}
-  .btn{position:absolute;width:84px;height:84px;border-radius:50%;pointer-events:auto;touch-action:none;
-    cursor:pointer;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);
-    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;
-    color:#fff;text-shadow:0 2px 4px #000;backdrop-filter:blur(3px);transition:transform .06s}
+    background:radial-gradient(circle at 40% 32%,rgba(255,255,255,.28),rgba(0,0,0,.42));
+    border:2px solid rgba(255,255,255,.24)}
+  .btn{position:absolute;width:88px;height:88px;border-radius:50%;pointer-events:auto;touch-action:none;
+    cursor:pointer;border:3px solid rgba(255,255,255,.4);background:rgba(255,255,255,.14);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;
+    color:#fff;text-shadow:0 2px 5px #000;backdrop-filter:blur(3px);transition:transform .06s;
+    box-shadow:0 8px 22px rgba(0,0,0,.5), inset 0 2px 0 rgba(255,255,255,.18)}
+  .btn b{font-size:23px;margin-bottom:2px}
+  .btn i{font-style:normal;font-weight:900;font-size:12px;letter-spacing:.5px}
   .btn.press{transform:scale(.9)}
-  #bShoot{right:26px;bottom:112px;background:rgba(224,36,47,.36);border-color:rgba(255,140,140,.6)}
-  #bPass{right:122px;bottom:40px;background:rgba(20,140,90,.36);border-color:rgba(140,255,190,.6)}
-  #bSprint{right:26px;bottom:26px;width:66px;height:66px;font-size:11px}
-  #bTackle{right:128px;bottom:146px;width:74px;height:74px;font-size:11px;
-    background:rgba(70,120,220,.34);border-color:rgba(150,190,255,.6)}
-  #bDribble{right:214px;bottom:56px;width:74px;height:74px;font-size:11px;
-    background:rgba(230,170,40,.32);border-color:rgba(255,220,140,.6)}
-  #fsBtn{position:absolute;right:58px;top:12px;width:38px;height:38px;border-radius:10px;
-    pointer-events:auto;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.25);
-    display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;z-index:5;color:#cfe6d6}
+  /* mando en rombo: tiro a la derecha, pase abajo, regate arriba, entrada a la izquierda */
+  #bShoot{right:18px;bottom:106px;background:rgba(224,36,47,.34);border-color:rgba(255,150,150,.6)}
+  #bPass{right:114px;bottom:24px;background:rgba(20,150,95,.34);border-color:rgba(150,255,195,.6)}
+  #bDribble{right:114px;bottom:188px;background:rgba(230,170,40,.32);border-color:rgba(255,225,150,.6)}
+  #bTackle{right:210px;bottom:106px;background:rgba(70,120,220,.34);border-color:rgba(160,200,255,.6)}
+  #bSprint{right:22px;bottom:22px;width:72px;height:72px;background:rgba(255,255,255,.13)}
+  #bSprint b{font-size:20px}
+  #bSprint i{font-size:11px}
   #pauseBtn{position:absolute;right:12px;top:12px;width:38px;height:38px;border-radius:10px;
     pointer-events:auto;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.25);
     display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;z-index:5}
   .fade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .4s}
-  @media (max-height:520px){
-    #dpad{width:124px;height:124px;left:14px;bottom:14px}
-    .dp-seg::after{border-left-width:8px;border-right-width:8px;border-bottom-width:13px;margin-left:-8px;top:7px}
-    .dp-knob{width:40px;height:40px;margin:-20px 0 0 -20px}
-    .btn{width:64px;height:64px;font-size:10.5px}
-    #bShoot{right:16px;bottom:82px} #bPass{right:88px;bottom:22px}
-    #bTackle{right:92px;bottom:104px;width:58px;height:58px;font-size:9.5px}
-    #bDribble{right:158px;bottom:42px;width:58px;height:58px;font-size:9.5px}
-    #bSprint{right:16px;bottom:16px;width:52px;height:52px;font-size:9.5px}
+  @media (max-height:560px){
+    #dpad{width:150px;height:150px;left:14px;bottom:14px;border-width:2px}
+    .dp-seg::after{border-left-width:10px;border-right-width:10px;border-bottom-width:16px;margin-left:-10px;top:8px}
+    .dp-knob{width:48px;height:48px;margin:-24px 0 0 -24px}
+    .btn{width:70px;height:70px;border-width:2px}
+    .btn b{font-size:19px;margin-bottom:1px}
+    .btn i{font-size:10px}
+    #bShoot{right:14px;bottom:86px} #bPass{right:90px;bottom:16px}
+    #bDribble{right:90px;bottom:152px} #bTackle{right:166px;bottom:86px}
+    #bSprint{right:14px;bottom:14px;width:54px;height:54px}
+    #bSprint b{font-size:15px} #bSprint i{font-size:9px}
   }
 </style>
 </head>
@@ -96,11 +100,11 @@
 
   <div id="touch">
     <div id="dpad"></div>
-    <div class="btn" id="bShoot">TIRO</div>
-    <div class="btn" id="bPass">PASE</div>
-    <div class="btn" id="bSprint">SPRINT</div>
-    <div class="btn" id="bTackle">ENTRADA</div>
-    <div class="btn" id="bDribble">REGATE</div>
+    <div class="btn" id="bShoot"><b>⚽</b><i>TIRO</i></div>
+    <div class="btn" id="bPass"><b>➜</b><i>PASE</i></div>
+    <div class="btn" id="bDribble"><b>⚡</b><i>REGATE</i></div>
+    <div class="btn" id="bTackle"><b>🦶</b><i>ENTRADA</i></div>
+    <div class="btn" id="bSprint"><b>»</b><i>SPRINT</i></div>
   </div>
   <div id="pauseBtn" style="display:none">❚❚</div>
   <div id="fsBtn">⛶</div>
@@ -231,7 +235,7 @@ function updateCamera(dt){
   const bsp = Math.hypot(ball.vx, ball.vz);
   const holder = ball.owner || ball.lastPlayer;
   const dHold = holder ? dist(holder.x, holder.z, ball.x, ball.z) : 1e9;
-  const close = dHold < 46 && bsp < 300;
+  const close = dHold < 62 && bsp < 340;
   const gxA = teams[0].dir>0 ? LEN : 0, gxB = LEN-gxA;
   const nearBox = Math.min(Math.abs(ball.x-gxA), Math.abs(ball.x-gxB)) < AREA_X+40;
 
@@ -243,18 +247,21 @@ function updateCamera(dt){
   if(CAM.hold<=0){
     if(G.state==='kickoff' || G.state==='halftime') camCut('wide', 0.6);
     else if(G.state==='celebrate') camCut('tight', 0.4);
-    else if(nearBox && close) camCut('tight', 0.5);
-    else if(bsp > 470) camCut('wide', 0.35);
+    else if(close) camCut('tight', 0.5);            // alguien la lleva: nos pegamos a él
+    else if(bsp > 500) camCut('wide', 0.35);
     else camCut('main', 0.25);
   }
 
   // objetivo de encuadre
   let tx = ball.x + ball.vx*0.22;
   if(close && holder) tx = ball.x*0.5 + holder.x*0.5;
-  if(CAM.shot==='tight'){ CAM.tzoom = 1.30; CAM.ty = -6; }
-  else if(CAM.shot==='wide'){ CAM.tzoom = 0.90; CAM.ty = 16; }
-  else { CAM.tzoom = 1.06; CAM.ty = 0; }
-  if(G.state==='celebrate') CAM.tzoom = 1.34;
+  if(CAM.shot==='tight'){ CAM.tzoom = 1.10; CAM.ty = -4; }
+  else if(CAM.shot==='wide'){ CAM.tzoom = 0.88; CAM.ty = 10; }
+  else { CAM.tzoom = 0.99; CAM.ty = 0; }
+  if(G.state==='celebrate') CAM.tzoom = 1.18;
+  // la jugada en la banda del fondo se ve pequeña: se compensa con más zoom
+  const depth = clamp((holder && close ? holder.z : ball.z)/WID, 0, 1);
+  CAM.tzoom *= 1 + (1-depth)*0.10;
 
   // zona muerta: el operador no corrige mientras la acción esté encuadrada
   const dead = 46/CAM.zoom;
@@ -273,7 +280,7 @@ function updateCamera(dt){
   const hand = Math.sin(CAM.opN*1.3)*1.1 + Math.sin(CAM.opN*2.7+1.2)*0.6;
 
   camX = CAM.x + hand*0.6;
-  camZoom = clamp(CAM.zoom + (CAM.zoomBias||0), 0.75, 1.6);
+  camZoom = clamp(CAM.zoom + (CAM.zoomBias||0), 0.82, 1.32);
   camY = CAM.y;
   G.camTarget = CAM.tx;
 
@@ -783,6 +790,11 @@ function updateBall(dt){
   ball.x += ball.vx*dt; ball.y += ball.vy*dt; ball.z += ball.vz*dt;
   const sp = Math.hypot(ball.vx, ball.vz);
   ball.rot += (sp*dt)/BALL_R * 0.6 * (ball.vx>=0?1:-1);
+  if(ball.rotSpeed){                       // giro extra tras un golpeo fuerte
+    ball.rot += ball.rotSpeed*dt*(ball.vx>=0?1:-1);
+    ball.rotSpeed *= Math.pow(0.25, dt);
+    if(ball.rotSpeed < 0.05) ball.rotSpeed = 0;
+  }
   if(ball.y <= BALL_R){
     ball.y = BALL_R;
     if(ball.vy < -25){ ball.vy = -ball.vy*0.62; Snd.noise(.06,.06,600); if(sp>140) grassBurst(ball.x,ball.z,ball.vx*.2,ball.vz*.2,3); }
@@ -2290,7 +2302,8 @@ function drawPlayer(p, t){
 
   ctx.save();
   ctx.translate(pr.sx, pr.sy - (p.jump||0)*pr.sc);
-  ctx.scale(pr.sc*(L.troll?1.10:1.0), -pr.sc*(L.troll?0.93:1.0));
+  const BODY = 1.16;                       // los jugadores destacan sobre el campo
+  ctx.scale(pr.sc*BODY*(L.troll?1.10:1.0), -pr.sc*BODY*(L.troll?0.93:1.0));
 
   // --- pose ---
   const run = clamp(p.spd/260, 0, 1.3);
@@ -2363,19 +2376,20 @@ function drawPlayer(p, t){
   }
 
   function armAngles(){
-    if(armMode===1) return [{s:-2.5,e:0.5},{s:-2.2,e:0.4}];
-    if(armMode===2) return [{s:-1.5,e:2.2},{s:-1.3,e:2.1}];
-    if(armMode===3) return [{s:-1.15,e:0.55},{s:-1.05,e:0.5}];
+    if(armMode===1) return [{s:2.60,e:0.25},{s:2.35,e:0.30}];   // celebra con los brazos en alto
+    if(armMode===2) return [{s:0.35,e:2.45},{s:0.30,e:2.40}];   // manos a la cara
+    if(armMode===3) return [{s:1.05,e:0.55},{s:0.95,e:0.60}];   // portero, brazos por delante
     if(sliding)     return [{s:1.2,e:0.5},{s:-0.6,e:0.9}];
     if(p.kickT>0)   return [{s:0.95,e:0.7},{s:-0.9,e:0.6}];
     const a = hipA*0.85;
-    return [{s:-a, e:0.5+run*0.55},{s:a, e:0.5+run*0.55}];
+    const el = 0.62 + run*0.62;                                  // codo flexionado al correr
+    return [{s:-a, e:el},{s:a, e:el}];
   }
   const AA = armAngles();
   function drawArm(idx, l, far){
     const A = AA[idx], f = far?0.86:1;
     const ef = Math.sin(A.s)*11, eh = SH_Y - Math.cos(A.s)*11;
-    const a2 = A.s - A.e;
+    const a2 = A.s + A.e;   // el codo lleva la mano hacia delante
     const hf = ef + Math.sin(a2)*10.5, hh = eh - Math.cos(a2)*10.5;
     const S = P(0, l*0.94, SH_Y), E = P(ef, l*1.22, eh), Hd = P(hf, l*1.34, hh);
     const sk1=mixCol(L.skin, far?0.80:1), sk2=mixCol(L.dark, far?0.75:0.95);
@@ -2557,8 +2571,6 @@ function drawBall(){
   ctx.save(); ctx.beginPath(); ctx.arc(0,0,r,0,TAU); ctx.clip();
   ctx.fillStyle='#1a1f26';
   const rot = ball.rot;
-  // Rotación basada en velocidad para más realismo
-  const spinFactor = ball.rotSpeed ? ball.rotSpeed * dt : 0;
   for(let i=0;i<6;i++){
     const a = rot + i*TAU/6;
     const cx = Math.cos(a)*r*0.58, cy = Math.sin(a*0.65)*r*0.38;
@@ -2970,7 +2982,7 @@ function render(){
   pf('goals', ()=>{ drawGoal(0, true); drawGoal(LEN, true); });
 
   pf('shadows', ()=>{
-    for(const p of allPlayers) drawShadow(p.x, p.z, 12.5, .5, 0);
+    for(const p of allPlayers) drawShadow(p.x, p.z, 14, .5, 0);
     drawShadow(referee.x, referee.z, 11, .42, 0);
     drawShadow(ball.x, ball.z, 7, .5, ball.y);
   });
@@ -3009,14 +3021,21 @@ function menuRender(){
   drawMenuScene(G.t);
 }
 
+let errCount = 0;
 function frame(now){
   const dtRaw = Math.min(0.05, (now-last)/1000);
   last = now;
   acc += dtRaw;
-  let guard=0;
-  while(acc>=STEP && guard++<12){ step(STEP); acc-=STEP; }
-  if(G.state==='menu'){ G.t += dtRaw; menuRender(); }
-  else render();
+  try {
+    let guard=0;
+    while(acc>=STEP && guard++<12){ step(STEP); acc-=STEP; }
+    if(G.state==='menu'){ G.t += dtRaw; menuRender(); }
+    else render();
+  } catch(e){
+    // el partido continúa aunque un fotograma falle
+    acc = 0;
+    if(errCount++ < 5) console.error('AlberSoccer:', e);
+  }
   requestAnimationFrame(frame);
 }
 

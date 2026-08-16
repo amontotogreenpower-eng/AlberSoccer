@@ -49,6 +49,10 @@ En el menú puedes elegir **duración** (2×1 min, 2×2 min o 2×4 min), **dific
 (Paseíllo, Normal, Derbi, Troll) y si quieres el **pad en pantalla** (Auto / Siempre / Nunca);
 en "Auto" aparece solo en pantallas táctiles, pero también funciona con el ratón.
 
+Los mandos en pantalla son un pad direccional grande a la izquierda —con la flecha activa
+iluminada— y cinco botones en rombo a la derecha, cada uno con su icono y su color: ⚽ TIRO,
+➜ PASE, ⚡ REGATE, 🦶 ENTRADA y » SPRINT. En pantallas apaisadas bajas se reescalan solos.
+
 ## Qué hay dentro
 
 - **Toque por contacto**: no existe la posesión adherida; un sistema de intenciones
