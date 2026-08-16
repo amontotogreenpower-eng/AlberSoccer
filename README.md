@@ -15,6 +15,7 @@ Abre `index.html` en cualquier navegador moderno. No hace falta servidor ni inst
 | Mover (8 direcciones) | `← ↑ ↓ →` o `WASD` | pad direccional |
 | Tiro | `ESPACIO` | botón **TIRO** |
 | Pase / cambiar de jugador | `C` o `INTRO` | botón **PASE** |
+| Regate (recorte + acelerón) | `X` o `Z` | botón **REGATE** |
 | Entrada (robar el balón) | `V` o `B` | botón **ENTRADA** |
 | Sprint | `MAYÚS` | botón **SPRINT** |
 | Pantalla completa | `F` | botón ⛶ |
@@ -39,6 +40,10 @@ el ritmo sea pausado y que colocarse importe más que correr.
   quien acaba de tocarlo conserva el mando; con `C` lejos del balón cambias a mano.
 - **Entrada**: barrida dirigida. Si hay un rival cerca yendo a por el balón, va a por él; si no,
   se lanza al balón. Derriba al contrario y deja el balón suelto.
+- **Regate**: recorte corto hacia donde apuntes con un acelerón inmediato. Los rivales pegados
+  se quedan clavados un instante. Tiene enfriamiento, así que no se puede encadenar sin fin.
+- **Pase al hueco**: el balón se envía por delante del compañero según su carrera, y un aro
+  verde marca a quién va dirigido. El control pasa al receptor.
 
 En el menú puedes elegir **duración** (2×1 min, 2×2 min o 2×4 min), **dificultad**
 (Paseíllo, Normal, Derbi, Troll) y si quieres el **pad en pantalla** (Auto / Siempre / Nunca);
@@ -51,8 +56,17 @@ en "Auto" aparece solo en pantallas táctiles, pero también funciona con el rat
   como para la IA.
 - **Perspectiva real**: proyección de cámara con distancia focal, altura y horizonte, así que
   el campo, las porterías, las líneas y los jugadores escalan según su profundidad.
-- **Cámara con zoom automático**: se acerca cuando alguien lleva el balón (encuadrando jugador
-  y balón), y abre el plano en los envíos largos. El graderío escala con ella.
+- **Realización televisiva**: una cámara de banda con zona muerta, anticipación y temblor de
+  operador, que corta entre plano general (saques y envíos largos), plano medio y plano corto
+  (jugadas de área). El graderío escala y se desplaza con ella, así que fondo y campo siempre
+  cuadran.
+- **Repetición instantánea**: se graban los últimos cinco segundos de juego y, tras un gol del
+  Sevilla, se emiten a cámara lenta desde una segunda cámara —más baja y cerrada— con su rótulo
+  de repetición, antes de volver a la celebración.
+- **Orientación real de los jugadores**: el cuerpo no se voltea como un folio. Cada jugador
+  tiene un ángulo en el plano del campo y su esqueleto se proyecta en 3D, de modo que se les ve
+  de perfil, de frente (con la cara y el escudo) y de espaldas (con la nuca y el dorsal), y el
+  torso se ensancha o estrecha según el giro.
 - **Zancada sin patinaje**: la fase del paso avanza con la distancia recorrida, no con el reloj,
   y la pierna de apoyo retrocede de forma lineal, así que el pie se queda clavado en el césped.
   El cuerpo además gira de forma progresiva y se inclina al acelerar o frenar.
