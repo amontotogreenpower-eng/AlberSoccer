@@ -13,9 +13,11 @@ Abre `index.html` en cualquier navegador moderno. No hace falta servidor ni inst
 | Acción | Teclado | Pad en pantalla |
 |---|---|---|
 | Mover (8 direcciones) | `← ↑ ↓ →` o `WASD` | pad direccional |
-| Tiro / entrada | `ESPACIO` | botón **TIRO** |
-| Pase / cambiar de jugador | `C`, `X` o `INTRO` | botón **PASE** |
+| Tiro | `ESPACIO` | botón **TIRO** |
+| Pase / cambiar de jugador | `C` o `INTRO` | botón **PASE** |
+| Entrada (robar el balón) | `V` o `B` | botón **ENTRADA** |
 | Sprint | `MAYÚS` | botón **SPRINT** |
+| Pantalla completa | `F` | botón ⛶ |
 | Pausa | `P` o `ESC` | botón ❚❚ |
 
 ### Dinámica al estilo *Match Day II*
@@ -35,6 +37,8 @@ el ritmo sea pausado y que colocarse importe más que correr.
   llega físicamente al balón. Si no llega, es gol.
 - **Cambio de jugador**: controlas al del Sevilla más cercano al balón (flecha amarilla), pero
   quien acaba de tocarlo conserva el mando; con `C` lejos del balón cambias a mano.
+- **Entrada**: barrida dirigida. Si hay un rival cerca yendo a por el balón, va a por él; si no,
+  se lanza al balón. Derriba al contrario y deja el balón suelto.
 
 En el menú puedes elegir **duración** (2×1 min, 2×2 min o 2×4 min), **dificultad**
 (Paseíllo, Normal, Derbi, Troll) y si quieres el **pad en pantalla** (Auto / Siempre / Nunca);
@@ -47,6 +51,11 @@ en "Auto" aparece solo en pantallas táctiles, pero también funciona con el rat
   como para la IA.
 - **Perspectiva real**: proyección de cámara con distancia focal, altura y horizonte, así que
   el campo, las porterías, las líneas y los jugadores escalan según su profundidad.
+- **Cámara con zoom automático**: se acerca cuando alguien lleva el balón (encuadrando jugador
+  y balón), y abre el plano en los envíos largos. El graderío escala con ella.
+- **Zancada sin patinaje**: la fase del paso avanza con la distancia recorrida, no con el reloj,
+  y la pierna de apoyo retrocede de forma lineal, así que el pie se queda clavado en el césped.
+  El cuerpo además gira de forma progresiva y se inclina al acelerar o frenar.
 - **Jugadores dibujados a mano**: esqueleto animado (cadera, rodilla, tobillo, hombro, codo)
   con extremidades cilíndricas sombreadas, ciclo de carrera, chut, barrida, estirada del
   portero, celebración y llanto.
