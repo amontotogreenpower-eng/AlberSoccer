@@ -199,14 +199,62 @@ const LEG_EFF = 32;        // longitud efectiva cadera→pie (para la zancada)
 // ---------- Cámara / proyección ----------
 const VW = 1280, VH = 720;
 const FOCAL = 1013, CAM_DIST = 520, CAM_H = 270, HORIZON = 100;
-let camX = LEN/2, camShake = 0, camZoom = 1;
+let camX = LEN/2, camShake = 0, camZoom = 1, targetCamZoom = 1;
+let camY = 0, targetCamY = 0, camAngle = 0, targetCamAngle = 0;
+let shakeDecay = 0.85, shakeAmp = 0;
 
 function proj(x,y,z){
   const dz = CAM_DIST + (WID - z);
   const sc = (FOCAL/dz)*camZoom;
-  return { sx: VW/2 + (x-camX)*sc, sy: HORIZON + (CAM_H - y)*sc, sc: sc };
+  // Efecto de perspectiva dinámica según zoom
+  const perspectiveShift = (1 - camZoom) * 40;
+  return { 
+    sx: VW/2 + (x-camX)*sc + Math.sin(camAngle)*perspectiveShift*sc, 
+    sy: HORIZON + camY*sc + (CAM_H - y)*sc, 
+    sc: sc 
+  };
 }
 function scaleAt(z){ return (FOCAL/(CAM_DIST + WID - z))*camZoom; }
+
+// Sistema de cámara dinámica estilo Match Day II
+function updateCamera(dt, ball, controlled){
+  // Zoom dinámico basado en la acción
+  const ballSpeed = Math.hypot(ball.vx, ball.vz);
+  const isFastPlay = ballSpeed > 400 || (controlled && controlled.spd > 200);
+  
+  // Zoom se ajusta según la velocidad del juego
+  if(isFastPlay){
+    targetCamZoom = 0.85; // Alejar cámara cuando hay acción rápida
+  } else if(ball.owner){
+    targetCamZoom = 1.15; // Acercar cuando hay posesión
+  } else {
+    targetCamZoom = 1.0;
+  }
+  
+  // Suavizar transición del zoom
+  camZoom += (targetCamZoom - camZoom) * Math.min(1, dt * 2.5);
+  camZoom = clamp(camZoom, 0.7, 1.4);
+  
+  // Movimiento vertical suave de la cámara
+  targetCamY = ballSpeed * 0.03;
+  camY += (targetCamY - camY) * Math.min(1, dt * 3);
+  
+  // Ángulo de cámara dinámico (efecto cinematográfico)
+  targetCamAngle = (ball.vx / 800) * (1 - camZoom);
+  camAngle += (targetCamAngle - camAngle) * Math.min(1, dt * 2);
+  
+  // Shake de cámara en eventos importantes
+  if(shakeAmp > 0.5){
+    camShake = shakeAmp * (Math.random() * 2 - 1);
+    shakeAmp *= shakeDecay;
+    if(shakeAmp < 0.5) camShake = 0;
+  }
+}
+
+function triggerCameraShake(intensity){
+  shakeAmp = Math.max(shakeAmp, intensity);
+  shakeDecay = 0.82;
+}
 
 // ---------- Canvas ----------
 const cv = document.getElementById('game');
@@ -284,6 +332,9 @@ window.addEventListener('keydown', e=>{
   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
   if(e.code==='KeyP' || e.code==='Escape') togglePause();
   if(e.code==='KeyF') toggleFullscreen();
+  // Zoom con teclas + y -
+  if(e.code==='Equal' || e.code==='NumpadAdd'){ targetCamZoom = clamp(targetCamZoom + 0.15, 0.7, 1.4); }
+  if(e.code==='Minus' || e.code==='NumpadSubtract'){ targetCamZoom = clamp(targetCamZoom - 0.15, 0.7, 1.4); }
 });
 window.addEventListener('keyup', e=>{ keys[e.code]=false; });
 
@@ -366,7 +417,8 @@ function readInput(dt){
   Input.pass  = !!(keys['KeyC']||keys['Enter']||tPass);
   Input.sprint= !!(keys['ShiftLeft']||keys['ShiftRight']||tSprint);
   Input.tackle= !!(keys['KeyV']||keys['KeyB']||tTackle);
-  // barra de potencia: sube y baja mientras se mantiene pulsado
+  // Barra de potencia: sube y baja mientras se mantiene pulsado
+  // Mejora: más control con la tecla Z para pase preciso
   if(Input.shoot && !Input.shootPrev){ Input.charge = 0.14; Input.chargeDir = 1; }
   if(Input.shoot){
     Input.charge += Input.chargeDir*dt*1.05;
@@ -604,11 +656,21 @@ function pickControlled(dt){
 function kickBall(p, power, lift, tx, tz, curve){
   const dx = tx - ball.x, dz = tz - ball.z, d = Math.hypot(dx,dz)||1;
   ball.owner = null; ball.lastTouch = p.team;
-  ball.vx = dx/d*power; ball.vz = dz/d*power; ball.vy = lift;
+  // Física mejorada del balón con efectos más realistas
+  const kickPower = power * (1 + Math.random() * 0.03); // Pequeña variación para realismo
+  ball.vx = dx/d*kickPower; ball.vz = dz/d*kickPower; ball.vy = lift;
   ball.spin = curve||0;
+  // Rotación del balón basada en el tipo de chute
+  ball.rotSpeed = power / 200;
   p.ownCd = 0.28; p.kickT = 0.34; p.state='kick'; p.st=0;
   Snd.kick(clamp(power/900,0,1));
-  grassBurst(ball.x, ball.z, dx/d*100, dz/d*100, 6);
+  // Efectos visuales mejorados según la fuerza del chute
+  const grassCount = power > 700 ? 12 : (power > 400 ? 8 : 6);
+  grassBurst(ball.x, ball.z, dx/d*100, dz/d*100, grassCount);
+  // Camera shake en chutes potentes
+  if(power > 650) triggerCameraShake(3.5);
+  // Partículas de césped más dramáticas en tiros fuertes
+  if(power > 750) sparkle(ball.x, 10, ball.z, 4);
 }
 function updateBall(dt){
   ball.px = ball.x;
@@ -769,11 +831,35 @@ function movePlayer(p, tx, tz, sprint, dt){
   const dm = p.team===0 ? 1 : DIFF[G.diff].spd;
   let maxs = base*dm*(sprint?1.26:1);
   if(p.stun>0) maxs *= 0.25;
-  const dx = tx - p.x, dz = tz - p.z, d = Math.hypot(dx,dz);
+  
+  const dx = tx - p.x, dz = tz - p.z, d = Math.hypot(dx,dz)||1;
   let ax=0, az=0;
-  if(d>1){ ax = dx/d*maxs; az = dz/d*maxs; }
-  const acc = 1 - Math.pow(0.035, dt);     // arrancar y frenar cuesta
-  p.vx += (ax-p.vx)*acc; p.vz += (az-p.vz)*acc;
+  if(d>1){ 
+    // Dirección objetivo normalizada
+    const dirX = dx/d, dirZ = dz/d;
+    ax = dirX*maxs; 
+    az = dirZ*maxs; 
+    
+    // Inercia y momentum para movimiento más realista
+    const inertiaFactor = 0.72; // Cuánto mantiene la velocidad actual
+    const turnSharpness = sprint ? 4.5 : 3.2; // Giro más rápido en sprint
+    
+    // Mezclar velocidad actual con la deseada (efecto de inercia)
+    const currentSpeed = Math.hypot(p.vx, p.vz);
+    const momentumX = p.vx * inertiaFactor;
+    const momentumZ = p.vz * inertiaFactor;
+    
+    // Suavizar el giro según la velocidad
+    const turnFactor = Math.min(1, turnSharpness * dt * (1 + currentSpeed/maxs));
+    p.vx = lerp(momentumX, ax, turnFactor);
+    p.vz = lerp(momentumZ, az, turnFactor);
+  } else {
+    // Frenado más natural cuando se llega al destino
+    const stopAcc = 1 - Math.pow(0.02, dt);
+    p.vx += (ax-p.vx)*stopAcc;
+    p.vz += (az-p.vz)*stopAcc;
+  }
+  
   const s = Math.hypot(p.vx,p.vz);
   if(s>maxs){ p.vx = p.vx/s*maxs; p.vz = p.vz/s*maxs; }
   p.spd = s;
@@ -1177,16 +1263,58 @@ const crowd = [];
 })();
 
 function drawSky(){
-  const g = ctx.createLinearGradient(0,0,0,HORIZON+300);
-  g.addColorStop(0,'#050a12'); g.addColorStop(.45,'#0b1a2a'); g.addColorStop(1,'#16324a');
+  // Cielo nocturno con gradiente más rico y atmósfera de estadio
+  const g = ctx.createLinearGradient(0,0,0,HORIZON+380);
+  g.addColorStop(0,'#02060a'); 
+  g.addColorStop(0.25,'#06101a'); 
+  g.addColorStop(0.5,'#0a1c2e'); 
+  g.addColorStop(0.75,'#0f2840');
+  g.addColorStop(1,'#163652');
   ctx.fillStyle=g; ctx.fillRect(0,0,VW,VH);
-  // resplandor de focos
-  for(let i=0;i<4;i++){
-    const x = VW*(0.12+i*0.26);
-    const rg = ctx.createRadialGradient(x, 30, 4, x, 30, 260);
-    rg.addColorStop(0,'rgba(255,250,220,.55)'); rg.addColorStop(.3,'rgba(200,225,255,.14)'); rg.addColorStop(1,'rgba(120,180,255,0)');
-    ctx.fillStyle=rg; ctx.beginPath(); ctx.arc(x,30,260,0,TAU); ctx.fill();
+  
+  // Estrellas sutiles en el cielo nocturno (solo visibles arriba)
+  ctx.save();
+  ctx.globalAlpha = 0.35;
+  ctx.fillStyle = '#ffffff';
+  const starSeed = Math.floor(G.t * 0.3) % 100;
+  for(let i=0; i<25; i++){
+    const sx = ((i * 137 + starSeed * 23) % VW);
+    const sy = ((i * 89 + starSeed * 17) % (HORIZON * 0.7));
+    const ssize = (i % 3) + 1;
+    ctx.beginPath();
+    ctx.arc(sx, sy, ssize * 0.4, 0, TAU);
+    ctx.fill();
   }
+  ctx.restore();
+  
+  // Resplandor de focos más dramático y realista
+  for(let i=0;i<5;i++){
+    const x = VW*(0.1+i*0.22);
+    // Núcleo brillante del foco
+    const rgCore = ctx.createRadialGradient(x, 25, 2, x, 25, 180);
+    rgCore.addColorStop(0,'rgba(255,255,240,0.7)'); 
+    rgCore.addColorStop(0.2,'rgba(255,250,220,0.35)'); 
+    rgCore.addColorStop(0.5,'rgba(200,230,255,0.12)'); 
+    rgCore.addColorStop(1,'rgba(100,160,220,0)');
+    ctx.fillStyle=rgCore; 
+    ctx.beginPath(); ctx.arc(x,25,180,0,TAU); ctx.fill();
+    
+    // Halo exterior del foco
+    const rgHalo = ctx.createRadialGradient(x, 25, 80, x, 25, 420);
+    rgHalo.addColorStop(0,'rgba(255,245,200,0.18)'); 
+    rgHalo.addColorStop(0.4,'rgba(180,220,255,0.08)'); 
+    rgHalo.addColorStop(1,'rgba(80,140,200,0)');
+    ctx.fillStyle=rgHalo;
+    ctx.beginPath(); ctx.arc(x,25,420,0,TAU); ctx.fill();
+  }
+  
+  // Efecto de viñeta para atmosfera cinematográfica
+  const vignette = ctx.createRadialGradient(VW/2, VH/2, VW*0.4, VW/2, VH/2, VW*0.9);
+  vignette.addColorStop(0,'rgba(0,0,0,0)');
+  vignette.addColorStop(0.6,'rgba(0,0,0,0.15)');
+  vignette.addColorStop(1,'rgba(0,0,0,0.5)');
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0,0,VW,VH);
 }
 // La grada sólo se traslada con la cámara: se pinta una vez en un lienzo aparte.
 const SC_STAND = FOCAL/(CAM_DIST+WID+130);
@@ -1397,29 +1525,63 @@ function groundEllipse(cx,cz,r,w){
   }
 }
 function drawPitch(){
-  // césped base
+  // Césped base con textura más rica y variación de color
   const far = proj(0,0,-70), near = proj(0,0,WID+90);
+  // Gradiente mejorado con más matices verdes
   const g = ctx.createLinearGradient(0, far.sy, 0, near.sy);
-  g.addColorStop(0,'#1f5c28'); g.addColorStop(.45,'#2b7a33'); g.addColorStop(1,'#37913c');
+  g.addColorStop(0,'#1a5224'); 
+  g.addColorStop(0.3,'#246b2e'); 
+  g.addColorStop(0.5,'#2d8038'); 
+  g.addColorStop(0.7,'#359440');
+  g.addColorStop(1,'#3da848');
   ctx.fillStyle=g;
   quad(-500,-70, LEN+500,-70, LEN+500,WID+90, -500,WID+90); ctx.fill();
-  // franjas de siega
+  
+  // Textura sutil de césped (patrón de ruido)
+  ctx.save();
+  ctx.globalAlpha = 0.04;
+  ctx.fillStyle = '#ffffff';
+  const grassOffset = Math.floor(G.t * 2) % 50;
+  for(let i=0; i<80; i++){
+    const gx = ((i * 73 + grassOffset * 17) % LEN) - 50;
+    const gz = ((i * 47 + grassOffset * 13) % WID);
+    const gp = proj(gx, 0, gz);
+    if(gp.sc > 0.3){
+      ctx.beginPath();
+      ctx.arc(gp.sx, gp.sy, 2 * gp.sc, 0, TAU);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+  
+  // Franjas de siega más visibles y realistas
   for(let i=-4;i<20;i++){
     const x0=i*100, x1=x0+100;
     if(i%2===0) continue;
-    ctx.fillStyle='rgba(255,255,255,.045)';
+    // Gradiente para las franjas que varía con la perspectiva
+    const stripeGrad = ctx.createLinearGradient(0, far.sy, 0, near.sy);
+    stripeGrad.addColorStop(0,'rgba(255,255,255,.025)');
+    stripeGrad.addColorStop(0.5,'rgba(255,255,255,.055)');
+    stripeGrad.addColorStop(1,'rgba(255,255,255,.035)');
+    ctx.fillStyle=stripeGrad;
     quad(x0,-70, x1,-70, x1,WID+90, x0,WID+90); ctx.fill();
   }
-  // franjas transversales suaves (efecto rodillo)
+  
+  // Franjas transversales suaves (efecto rodillo del campo)
   for(let j=0;j<6;j++){
     const z0=j*(WID/6), z1=z0+WID/12;
-    ctx.fillStyle='rgba(0,0,0,.03)';
+    ctx.fillStyle='rgba(0,0,0,.025)';
     quad(-500,z0, LEN+500,z0, LEN+500,z1, -500,z1); ctx.fill();
   }
-  // viñeta de luz
-  const lg = ctx.createRadialGradient(VW/2, 430, 80, VW/2, 430, 780);
-  lg.addColorStop(0,'rgba(255,255,220,.10)'); lg.addColorStop(1,'rgba(0,0,0,.28)');
-  ctx.fillStyle=lg; ctx.fillRect(0,proj(0,0,-70).sy,VW,VH);
+  
+  // Viñeta de luz dinámica que sigue parcialmente al balón
+  const ballLightX = proj(ball.x, 0, ball.z).sx;
+  const lg = ctx.createRadialGradient(ballLightX * 0.7 + VW*0.15, 450, 60, ballLightX * 0.7 + VW*0.15, 450, 820);
+  lg.addColorStop(0,'rgba(255,255,230,.12)'); 
+  lg.addColorStop(0.5,'rgba(255,255,200,.05)');
+  lg.addColorStop(1,'rgba(0,0,0,.32)');
+  ctx.fillStyle=lg; 
+  ctx.fillRect(0,proj(0,0,-70).sy,VW,VH);
 
   // líneas
   ctx.fillStyle='rgba(255,255,255,.86)';
@@ -2011,39 +2173,79 @@ function drawStar(x,y,r,c){
 function drawBall(){
   const p = proj(ball.x, ball.y, ball.z);
   const r = BALL_R*p.sc;
-  // estela cuando vuela rápido
+  // Estela mejorada cuando vuela rápido (efecto motion blur)
   const spd = Math.hypot(ball.vx, ball.vz);
-  if(!ball.owner && spd>430){
-    const k = clamp((spd-430)/600, 0, 1);
-    for(let i=1;i<=5;i++){
-      const q = proj(ball.x-ball.vx*0.012*i, Math.max(BALL_R,ball.y-ball.vy*0.012*i), ball.z-ball.vz*0.012*i);
-      ctx.fillStyle='rgba(255,255,255,'+(0.22*k*(1-i/6))+')';
-      ctx.beginPath(); ctx.arc(q.sx,q.sy, r*(1-i*0.09), 0, TAU); ctx.fill();
+  if(!ball.owner && spd>380){
+    const k = clamp((spd-380)/650, 0, 1);
+    // Más estelas y más largas para mayor sensación de velocidad
+    for(let i=1;i<=7;i++){
+      const fade = 0.28*k*(1-i/8)*(1-i/8);
+      const trailScale = 1 - i*0.11;
+      const q = proj(ball.x-ball.vx*0.014*i, Math.max(BALL_R,ball.y-ball.vy*0.014*i), ball.z-ball.vz*0.014*i);
+      // Gradiente para la estela
+      const tg = ctx.createRadialGradient(q.sx, q.sy, 0, q.sx, q.sy, r*trailScale);
+      tg.addColorStop(0, 'rgba(255,255,255,'+fade+')');
+      tg.addColorStop(1, 'rgba(200,210,220,0)');
+      ctx.fillStyle=tg;
+      ctx.beginPath(); ctx.arc(q.sx,q.sy, r*trailScale, 0, TAU); ctx.fill();
     }
   }
   ctx.save();
   ctx.translate(p.sx, p.sy);
-  const g = ctx.createRadialGradient(-r*0.35,-r*0.4, r*0.1, 0,0, r*1.05);
-  g.addColorStop(0,'#ffffff'); g.addColorStop(.6,'#eef0f2'); g.addColorStop(1,'#a9b0b6');
-  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,r,0,TAU); ctx.fill();
-  // pentágonos girando
+  
+  // Sombra dinámica del balón según altura
+  if(ball.y > BALL_R*1.5){
+    const shadowY = p.sy + (ball.y - BALL_R)*p.sc*0.3;
+    const shadowAlpha = clamp(1 - (ball.y - BALL_R)/180, 0.1, 0.4);
+    const shadowScale = clamp(1 + (ball.y - BALL_R)/120, 0.8, 1.4);
+    ctx.fillStyle = `rgba(0,0,0,${shadowAlpha})`;
+    ctx.beginPath();
+    ctx.ellipse(0, (ball.y-BALL_R)*p.sc*0.4, r*shadowScale, r*0.35*shadowScale, 0, 0, TAU);
+    ctx.fill();
+  }
+  
+  // Balón con gradiente más realista y brillo especular
+  const g = ctx.createRadialGradient(-r*0.38,-r*0.42, r*0.08, 0,0, r*1.08);
+  g.addColorStop(0,'#ffffff'); 
+  g.addColorStop(0.5,'#f0f2f5'); 
+  g.addColorStop(0.85,'#d5dadf'); 
+  g.addColorStop(1,'#9aa3ab');
+  ctx.fillStyle=g; 
+  ctx.beginPath(); ctx.arc(0,0,r,0,TAU); ctx.fill();
+  
+  // Brillo especular adicional para efecto 3D
+  const highlight = ctx.createRadialGradient(-r*0.5,-r*0.55, 0, -r*0.3,-r*0.35, r*0.5);
+  highlight.addColorStop(0, 'rgba(255,255,255,0.7)');
+  highlight.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = highlight;
+  ctx.beginPath(); ctx.arc(0,0,r,0,TAU); ctx.fill();
+  
+  // Pentágonos girando con más detalle
   ctx.save(); ctx.beginPath(); ctx.arc(0,0,r,0,TAU); ctx.clip();
-  ctx.fillStyle='#1c2126';
+  ctx.fillStyle='#1a1f26';
   const rot = ball.rot;
-  for(let i=0;i<5;i++){
-    const a = rot + i*TAU/5;
-    const cx = Math.cos(a)*r*0.62, cy = Math.sin(a*0.6)*r*0.42;
-    const sq = Math.abs(Math.cos(a))*0.75+0.25;
+  // Rotación basada en velocidad para más realismo
+  const spinFactor = ball.rotSpeed ? ball.rotSpeed * dt : 0;
+  for(let i=0;i<6;i++){
+    const a = rot + i*TAU/6;
+    const cx = Math.cos(a)*r*0.58, cy = Math.sin(a*0.65)*r*0.38;
+    const sq = Math.abs(Math.cos(a))*0.8+0.2;
     ctx.save(); ctx.translate(cx,cy); ctx.scale(sq,1); ctx.rotate(a);
     ctx.beginPath();
-    for(let k=0;k<5;k++){ const aa=k/5*TAU - Math.PI/2, rr=r*0.32;
+    for(let k=0;k<5;k++){ const aa=k/5*TAU - Math.PI/2, rr=r*0.28;
       const px=Math.cos(aa)*rr, py=Math.sin(aa)*rr; k?ctx.lineTo(px,py):ctx.moveTo(px,py); }
-    ctx.closePath(); ctx.fill(); ctx.restore();
+    ctx.closePath(); ctx.fill();
+    // Borde sutil en los pentágonos
+    ctx.strokeStyle='rgba(255,255,255,0.15)';
+    ctx.lineWidth = Math.max(0.5, r*0.04);
+    ctx.stroke();
+    ctx.restore();
   }
-  ctx.beginPath(); ctx.arc(-r*0.3,-r*0.35,r*0.42,0,TAU);
-  ctx.fillStyle='rgba(255,255,255,.5)'; ctx.fill();
   ctx.restore();
-  ctx.strokeStyle='rgba(0,0,0,.28)'; ctx.lineWidth=Math.max(.6,r*0.06);
+  
+  // Contorno del balón más definido
+  ctx.strokeStyle='rgba(0,0,0,0.32)'; 
+  ctx.lineWidth=Math.max(0.8,r*0.07);
   ctx.beginPath(); ctx.arc(0,0,r,0,TAU); ctx.stroke();
   ctx.restore();
 }
@@ -2276,19 +2478,17 @@ function step(dt){
 
   if(G.state==='menu'){ return; }
 
-  // ── cámara: encuadra al que lleva el balón y abre el plano en los envíos largos
+  // ── cámara dinámica estilo Match Day II con zoom y movimientos realistas
   const bsp = Math.hypot(ball.vx, ball.vz);
   const holder = ball.owner || ball.lastPlayer;
   const dHold = holder ? dist(holder.x, holder.z, ball.x, ball.z) : 1e9;
   const close = dHold < 46 && bsp < 300;
-  let zTarget = 1.0;
-  if(G.state==='celebrate') zTarget = 1.30;
-  else if(G.state==='var') zTarget = 1.10;
-  else if(close) zTarget = 1.24;
-  else if(bsp > 460) zTarget = 0.93;
-  camZoom += (zTarget - camZoom)*Math.min(1, dt*(zTarget>camZoom?1.5:2.6));
+  
+  // Usar el nuevo sistema de cámara dinámica
+  updateCamera(dt, ball, controlled);
+  
   let tx = ball.x + ball.vx*0.20;
-  if(close) tx = ball.x*0.55 + holder.x*0.45;          // encuadra jugador + balón
+  if(close && holder) tx = ball.x*0.55 + holder.x*0.45;          // encuadra jugador + balón
   const margin = 300/camZoom;
   G.camTarget = clamp(tx, Math.min(margin, LEN/2), Math.max(LEN-margin, LEN/2));
   camX += (G.camTarget - camX)*Math.min(1, dt*(close?2.6:4.0));
