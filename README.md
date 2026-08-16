@@ -21,29 +21,30 @@ Abre `index.html` en cualquier navegador moderno. No hace falta servidor ni inst
 | Pantalla completa | `F` | botón ⛶ |
 | Pausa | `P` o `ESC` | botón ❚❚ |
 
-### Dinámica al estilo *Match Day II*
+### Dinámica
 
-**El balón no va pegado al pie.** Cada vez que alcanzas el balón le das un toque, y hay que ir
-a por él otra vez: conducir es una sucesión de toques, y si esprintas se te escapa. De ahí que
-el ritmo sea pausado y que colocarse importe más que correr.
+**El balón se queda contigo en cuanto llegas a él.** Al alcanzarlo lo controlas y lo conduces
+por delante con toques y bote; se pierde si te lo roban, si te barren o al golpear. Cuanto más
+rápido corres, más lejos lo llevas.
 
 - **Barra de potencia oscilante**: mantén pulsado `ESPACIO` y la barra sube y baja sobre tu
-  jugador. El disparo sale **en el instante en que alcanzas el balón**, con la potencia que
-  marque la barra en ese momento (tienes una ventana de gracia si sueltas justo antes).
+  jugador; el disparo sale al soltar, con la potencia que marque en ese instante. Si no tienes
+  el balón, el golpeo se produce en cuanto lo alcanzas.
+- **Golpeos con espectáculo**: el balón deja una estela de cometa que arde en los cañonazos,
+  el punto de golpeo suelta un fogonazo y una doble onda sobre el césped, la cámara acusa el
+  impacto y los disparos más fuertes ralentizan el tiempo un instante.
 - **Dirección de 8 rumbos**: el golpeo va hacia donde apuntas. Cerca del área, apuntar hacia
   la portería dirige el tiro a puerta y el eje vertical elige el palo.
-- **Rechaces**: un balón que te llega de frente rebota en ti en lugar de quedar controlado,
-  así que los despejes y las carambolas son parte del juego.
+- **Robo**: quitar el balón por delante es más fácil que por la espalda, y quien va a por él
+  aprieta mejor que un compañero cualquiera. Hay un instante de gracia tras controlarlo.
 - **Porteros de verdad**: no hay tirada secreta de "parada"; el portero para si su estirada
-  llega físicamente al balón. Si no llega, es gol.
+  llega físicamente al balón, y sale a achicar cuando le entran conduciendo.
 - **Cambio de jugador**: controlas al del Sevilla más cercano al balón (flecha amarilla), pero
-  quien acaba de tocarlo conserva el mando; con `C` lejos del balón cambias a mano.
-- **Entrada**: barrida dirigida. Si hay un rival cerca yendo a por el balón, va a por él; si no,
-  se lanza al balón. Derriba al contrario y deja el balón suelto.
-- **Regate**: recorte corto hacia donde apuntes con un acelerón inmediato. Los rivales pegados
-  se quedan clavados un instante. Tiene enfriamiento, así que no se puede encadenar sin fin.
-- **Pase al hueco**: el balón se envía por delante del compañero según su carrera, y un aro
-  verde marca a quién va dirigido. El control pasa al receptor.
+  quien lo lleva conserva el mando; con `C` lejos del balón cambias a mano.
+- **Entrada**: barrida dirigida al rival que lleva el balón o, si no lo hay, al balón.
+- **Regate**: recorte hacia donde apuntes con acelerón; los rivales pegados se quedan clavados.
+- **Pase al hueco**: el balón se envía por delante del compañero, y un aro verde marca a quién
+  va dirigido. El control pasa al receptor.
 
 En el menú puedes elegir **duración** (2×1 min, 2×2 min o 2×4 min), **dificultad**
 (Paseíllo, Normal, Derbi, Troll) y si quieres el **pad en pantalla** (Auto / Siempre / Nunca);
@@ -82,6 +83,9 @@ iluminada— y cinco botones en rombo a la derecha, cada uno con su icono y su c
   narizota ganchuda, uniceja, colmillos torcidos, babilla y moscas revoloteando.
 - **Estadio**: graderío con filas, pasillos, pancartas, focos, flashes de cámaras, público
   que salta en los goles y vallas publicitarias delante y detrás.
+- **Se adapta a la pantalla**: el ancho del campo visible depende del formato del monitor —en
+  panorámicas se ve el terreno entero y no hay bandas negras—, los mandos escalan con la altura
+  disponible y en vertical avisa de girar el dispositivo.
 - **Partido completo**: dos partes con cambio de campo, reloj de 90 minutos, saques de banda,
   de esquina y de puerta, porteros con estiradas, palos, comentarista y estadísticas finales.
 - **Secuencia VAR** para cada gol del Betis: monitor con líneas de escaneo, líneas de fuera de
