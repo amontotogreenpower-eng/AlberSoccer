@@ -1,0 +1,13 @@
+{
+  "name": "AlberSoccer — Sevilla FC vs Real Betis",
+  "short_name": "AlberSoccer",
+  "description": "Juego de fútbol en vista lateral: los guapos del Sevilla contra los trolls del Betis. Si marca el Betis, el VAR lo anula.",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#05090c",
+  "theme_color": "#0b1d12",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
