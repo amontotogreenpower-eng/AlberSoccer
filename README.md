@@ -10,22 +10,41 @@ horribles. Y la regla de oro del Albertirrey Stadium:
 
 Abre `index.html` en cualquier navegador moderno. No hace falta servidor ni instalación.
 
-| Acción | Teclado | Táctil |
+| Acción | Teclado | Pad en pantalla |
 |---|---|---|
-| Mover | `← ↑ ↓ →` o `WASD` | joystick (mitad izquierda) |
-| Tiro (mantener carga la potencia) / entrada | `ESPACIO` | botón **TIRO** |
+| Mover (8 direcciones) | `← ↑ ↓ →` o `WASD` | pad direccional |
+| Tiro / entrada | `ESPACIO` | botón **TIRO** |
 | Pase / cambiar de jugador | `C`, `X` o `INTRO` | botón **PASE** |
 | Sprint | `MAYÚS` | botón **SPRINT** |
 | Pausa | `P` o `ESC` | botón ❚❚ |
 
-Controlas siempre al jugador del Sevilla más cercano al balón (marcado con la flecha amarilla).
-Al dar un pase, el control pasa automáticamente al receptor.
+### Dinámica al estilo *Match Day II*
 
-En el menú puedes elegir **duración** (2×45 s, 2×90 s o 2×3 min) y **dificultad**
-(Paseíllo, Normal, Derbi, Troll).
+**El balón no va pegado al pie.** Cada vez que alcanzas el balón le das un toque, y hay que ir
+a por él otra vez: conducir es una sucesión de toques, y si esprintas se te escapa. De ahí que
+el ritmo sea pausado y que colocarse importe más que correr.
+
+- **Barra de potencia oscilante**: mantén pulsado `ESPACIO` y la barra sube y baja sobre tu
+  jugador. El disparo sale **en el instante en que alcanzas el balón**, con la potencia que
+  marque la barra en ese momento (tienes una ventana de gracia si sueltas justo antes).
+- **Dirección de 8 rumbos**: el golpeo va hacia donde apuntas. Cerca del área, apuntar hacia
+  la portería dirige el tiro a puerta y el eje vertical elige el palo.
+- **Rechaces**: un balón que te llega de frente rebota en ti en lugar de quedar controlado,
+  así que los despejes y las carambolas son parte del juego.
+- **Porteros de verdad**: no hay tirada secreta de "parada"; el portero para si su estirada
+  llega físicamente al balón. Si no llega, es gol.
+- **Cambio de jugador**: controlas al del Sevilla más cercano al balón (flecha amarilla), pero
+  quien acaba de tocarlo conserva el mando; con `C` lejos del balón cambias a mano.
+
+En el menú puedes elegir **duración** (2×1 min, 2×2 min o 2×4 min), **dificultad**
+(Paseíllo, Normal, Derbi, Troll) y si quieres el **pad en pantalla** (Auto / Siempre / Nunca);
+en "Auto" aparece solo en pantallas táctiles, pero también funciona con el ratón.
 
 ## Qué hay dentro
 
+- **Toque por contacto**: no existe la posesión adherida; un sistema de intenciones
+  (conducir / pasar / chutar) decide qué ocurre en el instante del golpeo, tanto para ti
+  como para la IA.
 - **Perspectiva real**: proyección de cámara con distancia focal, altura y horizonte, así que
   el campo, las porterías, las líneas y los jugadores escalan según su profundidad.
 - **Jugadores dibujados a mano**: esqueleto animado (cadera, rodilla, tobillo, hombro, codo)

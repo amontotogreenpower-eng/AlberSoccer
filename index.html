@@ -43,14 +43,30 @@
   .keys b{color:#fff;background:#2a4a36;padding:1px 7px;border-radius:5px;border:1px solid #5f9a76;font-size:11.5px}
   #touch{position:absolute;inset:0;pointer-events:none;display:none}
   #touch.on{display:block}
-  #stick{position:absolute;left:0;bottom:0;width:46%;height:52%;pointer-events:auto}
-  .btn{position:absolute;width:76px;height:76px;border-radius:50%;pointer-events:auto;
-    border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);
-    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;
-    color:#fff;text-shadow:0 2px 4px #000;backdrop-filter:blur(3px)}
-  #bShoot{right:22px;bottom:104px;background:rgba(224,36,47,.34);border-color:rgba(255,140,140,.6)}
-  #bPass{right:110px;bottom:34px;background:rgba(20,140,90,.34);border-color:rgba(140,255,190,.6)}
-  #bSprint{right:22px;bottom:18px;width:62px;height:62px;font-size:11px}
+  /* pad direccional de 8 direcciones */
+  #dpad{position:absolute;left:26px;bottom:26px;width:158px;height:158px;border-radius:50%;
+    pointer-events:auto;touch-action:none;cursor:pointer;
+    background:radial-gradient(circle at 50% 42%,rgba(28,44,36,.86),rgba(6,14,10,.9));
+    border:2px solid rgba(160,220,185,.4);box-shadow:0 10px 30px rgba(0,0,0,.55),
+      inset 0 2px 0 rgba(255,255,255,.12), inset 0 -8px 18px rgba(0,0,0,.5)}
+  .dp-seg{position:absolute;inset:0;pointer-events:none}
+  .dp-seg::after{content:'';position:absolute;left:50%;top:9px;width:0;height:0;margin-left:-11px;
+    border-left:11px solid transparent;border-right:11px solid transparent;
+    border-bottom:17px solid rgba(200,240,215,.42);
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.6));transition:.06s}
+  .dp-seg.on::after{border-bottom-color:#ffe066;transform:scale(1.22) translateY(-2px)}
+  .dp-knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;
+    border-radius:50%;pointer-events:none;
+    background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(0,0,0,.35));
+    border:1px solid rgba(255,255,255,.22)}
+  .btn{position:absolute;width:84px;height:84px;border-radius:50%;pointer-events:auto;touch-action:none;
+    cursor:pointer;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;
+    color:#fff;text-shadow:0 2px 4px #000;backdrop-filter:blur(3px);transition:transform .06s}
+  .btn.press{transform:scale(.9)}
+  #bShoot{right:26px;bottom:112px;background:rgba(224,36,47,.36);border-color:rgba(255,140,140,.6)}
+  #bPass{right:122px;bottom:40px;background:rgba(20,140,90,.36);border-color:rgba(140,255,190,.6)}
+  #bSprint{right:26px;bottom:26px;width:66px;height:66px;font-size:11px}
   #pauseBtn{position:absolute;right:12px;top:12px;width:38px;height:38px;border-radius:10px;
     pointer-events:auto;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.25);
     display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;z-index:5}
@@ -62,7 +78,7 @@
   <canvas id="game"></canvas>
 
   <div id="touch">
-    <div id="stick"></div>
+    <div id="dpad"></div>
     <div class="btn" id="bShoot">TIRO</div>
     <div class="btn" id="bPass">PASE</div>
     <div class="btn" id="bSprint">SPRINT</div>
@@ -77,9 +93,9 @@
       <b style="color:#ffd166">Si marca el Sevilla, es GOL. Si marca el Betis, el VAR lo anula por fuera de juego.</b></div>
       <div class="lbl">DURACIÓN DEL PARTIDO</div>
       <div class="row" id="optDur">
-        <button class="opt" data-v="45">Exprés · 2×45s</button>
-        <button class="opt sel" data-v="90">Normal · 2×90s</button>
-        <button class="opt" data-v="180">Largo · 2×3min</button>
+        <button class="opt" data-v="60">Exprés · 2×1min</button>
+        <button class="opt sel" data-v="120">Normal · 2×2min</button>
+        <button class="opt" data-v="240">Largo · 2×4min</button>
       </div>
       <div class="lbl">DIFICULTAD</div>
       <div class="row" id="optDif">
@@ -88,10 +104,18 @@
         <button class="opt" data-v="2">Derbi</button>
         <button class="opt" data-v="3">Troll</button>
       </div>
+      <div class="lbl">PAD EN PANTALLA</div>
+      <div class="row" id="optPad">
+        <button class="opt" data-v="auto">Auto</button>
+        <button class="opt sel" data-v="on">Siempre</button>
+        <button class="opt" data-v="off">Nunca</button>
+      </div>
       <div class="row" style="margin-top:20px"><button class="primary" id="btnPlay">¡JUGAR!</button></div>
       <div class="keys">
-        <b>← ↑ ↓ →</b> / <b>WASD</b> mover &nbsp;·&nbsp; <b>ESPACIO</b> tiro (mantén para potencia)<br>
-        <b>C</b> pase / cambiar jugador &nbsp;·&nbsp; <b>MAYÚS</b> sprint &nbsp;·&nbsp; <b>P</b> pausa
+        <b>← ↑ ↓ →</b> / <b>WASD</b> / <b>pad</b> mover en 8 direcciones<br>
+        <b>ESPACIO</b> mantener: la barra de potencia sube y baja; se chuta <i>al alcanzar el balón</i><br>
+        <b>C</b> pase (o cambiar de jugador si estás lejos) &nbsp;·&nbsp; <b>MAYÚS</b> sprint &nbsp;·&nbsp; <b>P</b> pausa<br>
+        <span style="color:#8fd6a8">El balón no va pegado al pie: hay que ir a por él.</span>
       </div>
     </div>
   </div>
@@ -141,7 +165,7 @@ const pick  = arr => arr[(Math.random()*arr.length)|0];
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 
 // ---------- Dimensiones del mundo ----------
-const LEN = 1500;          // largo del campo (eje x)
+const LEN = 1320;          // largo del campo (eje x)
 const WID = 620;           // ancho del campo (eje z: 0 = fondo, WID = cerca de cámara)
 const GOAL_W = 176, GOAL_H = 56, GOAL_D = 46;
 const GZ0 = (WID-GOAL_W)/2, GZ1 = GZ0+GOAL_W;
@@ -149,8 +173,9 @@ const AREA_X = 265, AREA_Z0 = 95, AREA_Z1 = WID-95;
 const SMALL_X = 100, SMALL_Z0 = 190, SMALL_Z1 = WID-190;
 const CIRCLE_R = 132;
 const PEN_X = 175;
-const GRAV = -1500;
+const GRAV = -1080;
 const BALL_R = 7.4;
+const TOUCH_R = 13.2;      // radio de golpeo: el balón NO se pega al pie
 const PH = 62;             // altura del jugador
 
 // ---------- Cámara / proyección ----------
@@ -234,7 +259,8 @@ const Snd = {
 
 // ---------- Entrada ----------
 const keys = {};
-const Input = { mx:0, mz:0, shoot:false, pass:false, sprint:false, shootPrev:false, passPrev:false, charge:0 };
+const Input = { mx:0, mz:0, shoot:false, pass:false, sprint:false, shootPrev:false, passPrev:false,
+  charge:0, chargeDir:1, chargeHold:0 };
 window.addEventListener('keydown', e=>{
   keys[e.code]=true;
   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
@@ -248,20 +274,58 @@ const stick = {active:false, id:-1, ox:0, oy:0, x:0, y:0};
 let tShoot=false, tPass=false, tSprint=false;
 function bindBtn(id, set){
   const el=document.getElementById(id);
-  el.addEventListener('touchstart', e=>{e.preventDefault(); set(true); el.style.transform='scale(.9)';},{passive:false});
-  el.addEventListener('touchend',   e=>{e.preventDefault(); set(false); el.style.transform='';},{passive:false});
-  el.addEventListener('touchcancel',e=>{ set(false); el.style.transform='';});
+  el.addEventListener('pointerdown', e=>{ e.preventDefault(); el.setPointerCapture(e.pointerId);
+    set(true); el.classList.add('press'); Snd.init(); });
+  const off = e=>{ set(false); el.classList.remove('press'); };
+  el.addEventListener('pointerup', off);
+  el.addEventListener('pointercancel', off);
+  el.addEventListener('contextmenu', e=>e.preventDefault());
 }
 bindBtn('bShoot', v=>tShoot=v); bindBtn('bPass', v=>tPass=v); bindBtn('bSprint', v=>tSprint=v);
-const stickEl = document.getElementById('stick');
-stickEl.addEventListener('touchstart', e=>{ e.preventDefault(); const t=e.changedTouches[0];
-  stick.active=true; stick.id=t.identifier; stick.ox=t.clientX; stick.oy=t.clientY; stick.x=0; stick.y=0; },{passive:false});
-stickEl.addEventListener('touchmove', e=>{ e.preventDefault();
-  for(const t of e.changedTouches) if(t.identifier===stick.id){
-    stick.x=clamp((t.clientX-stick.ox)/46,-1,1); stick.y=clamp((t.clientY-stick.oy)/46,-1,1);} },{passive:false});
-function stickEnd(e){ for(const t of e.changedTouches) if(t.identifier===stick.id){ stick.active=false; stick.x=stick.y=0; } }
-stickEl.addEventListener('touchend', stickEnd); stickEl.addEventListener('touchcancel', stickEnd);
-if('ontouchstart' in window){ touchEl.classList.add('on'); }
+// pad direccional de 8 direcciones (ratón o dedo)
+const pad = { active:false, dx:0, dz:0, id:-1, idx:-1 };
+const padEl = document.getElementById('dpad');
+const padCells = [];
+function padSet(cx, cy, ev){
+  const r = padEl.getBoundingClientRect();
+  const dx = ev.clientX - (r.left + r.width/2);
+  const dy = ev.clientY - (r.top  + r.height/2);
+  const d = Math.hypot(dx,dy);
+  if(d < r.width*0.17){ pad.dx=0; pad.dz=0; setPadLight(-1); return; }
+  const k = Math.round(Math.atan2(dy,dx)/(Math.PI/4));
+  const a = k*(Math.PI/4);
+  pad.dx = Math.cos(a); pad.dz = Math.sin(a);
+  setPadLight(((k%8)+8)%8);
+}
+function setPadLight(i){
+  if(pad.idx===i) return;
+  pad.idx = i;
+  for(let k=0;k<padCells.length;k++) padCells[k].classList.toggle('on', k===i);
+}
+if(padEl){
+  for(let i=0;i<8;i++){
+    const d = document.createElement('div');
+    d.className = 'dp-seg';
+    d.style.transform = 'rotate('+(i*45)+'deg)';
+    padEl.appendChild(d); padCells.push(d);
+  }
+  const knob = document.createElement('div'); knob.className='dp-knob'; padEl.appendChild(knob);
+  padEl.addEventListener('pointerdown', e=>{
+    e.preventDefault(); pad.active=true; pad.id=e.pointerId;
+    padEl.setPointerCapture(e.pointerId); padSet(0,0,e); Snd.init();
+  });
+  padEl.addEventListener('pointermove', e=>{ if(pad.active && e.pointerId===pad.id) padSet(0,0,e); });
+  const padEnd = e=>{ if(e.pointerId===pad.id){ pad.active=false; pad.dx=0; pad.dz=0; setPadLight(-1); } };
+  padEl.addEventListener('pointerup', padEnd);
+  padEl.addEventListener('pointercancel', padEnd);
+  padEl.addEventListener('contextmenu', e=>e.preventDefault());
+}
+let padMode = 'on';   // auto | on | off
+function applyPadMode(){
+  const on = padMode==='on' || (padMode==='auto' && ('ontouchstart' in window || navigator.maxTouchPoints>0));
+  touchEl.classList.toggle('on', on);
+}
+applyPadMode();
 
 function readInput(dt){
   let mx=0, mz=0;
@@ -269,14 +333,29 @@ function readInput(dt){
   if(keys['ArrowRight']||keys['KeyD']) mx+=1;
   if(keys['ArrowUp']||keys['KeyW']) mz-=1;
   if(keys['ArrowDown']||keys['KeyS']) mz+=1;
-  if(stick.active){ mx+=stick.x; mz+=stick.y; }
-  const m=Math.hypot(mx,mz); if(m>1){ mx/=m; mz/=m; }
+  if(pad.active){ mx+=pad.dx; mz+=pad.dz; }
+  // 8 direcciones, como en los clásicos
+  if(mx||mz){
+    const a = Math.round(Math.atan2(mz,mx)/(Math.PI/4))*(Math.PI/4);
+    mx = Math.cos(a); mz = Math.sin(a);
+    if(Math.abs(mx)<1e-9) mx=0; if(Math.abs(mz)<1e-9) mz=0;
+  }
   Input.shootPrev=Input.shoot; Input.passPrev=Input.pass;
   Input.mx=mx; Input.mz=mz;
   Input.shoot = !!(keys['Space']||tShoot);
   Input.pass  = !!(keys['KeyC']||keys['KeyX']||keys['Enter']||tPass);
   Input.sprint= !!(keys['ShiftLeft']||keys['ShiftRight']||tSprint);
-  if(Input.shoot) Input.charge = Math.min(1, Input.charge + dt*1.55);
+  // barra de potencia: sube y baja mientras se mantiene pulsado
+  if(Input.shoot && !Input.shootPrev){ Input.charge = 0.14; Input.chargeDir = 1; }
+  if(Input.shoot){
+    Input.charge += Input.chargeDir*dt*1.05;
+    if(Input.charge>=1){ Input.charge=1; Input.chargeDir=-1; }
+    if(Input.charge<=0.14){ Input.charge=0.14; Input.chargeDir=1; }
+    Input.chargeHold = 0.45;
+  } else if(Input.chargeHold>0){
+    Input.chargeHold -= dt;
+    if(Input.chargeHold<=0) Input.charge = 0;
+  }
 }
 
 // ---------- Aspecto de los jugadores ----------
@@ -334,7 +413,8 @@ function Player(team, idx){
     look: makeLook(team, idx),
     state:'idle', st:0,            // estado de animación y su tiempo
     kickT:0, slideT:0, ownCd:0, tackleCd:0, stun:0, celebrate:0, cry:0,
-    aim:0, tmp:0, jump:0, jumpV:0, diveDir:0, nearBall:false
+    aim:0, tmp:0, jump:0, jumpV:0, diveDir:0, nearBall:false,
+    touchCd:0, intent:null, intentT:0, passTo:null
   };
 }
 
@@ -353,7 +433,7 @@ const teams = [
 for(let t=0;t<2;t++) for(let i=0;i<FORM.length;i++) teams[t].players.push(Player(t,i));
 const allPlayers = teams[0].players.concat(teams[1].players);
 
-const ball = { x:LEN/2, y:BALL_R, z:WID/2, vx:0, vy:0, vz:0, rot:0, spin:0, owner:null, lastTouch:0, px:LEN/2, inGoal:0 };
+const ball = { x:LEN/2, y:BALL_R, z:WID/2, vx:0, vy:0, vz:0, rot:0, spin:0, owner:null, lastTouch:0, lastPlayer:null, px:LEN/2, inGoal:0 };
 
 // árbitro (no juega, solo corre y da ambiente)
 const referee = (function(){
@@ -377,7 +457,7 @@ function updateRef(dt){
 
 // ---------- Estado de juego ----------
 const G = {
-  state:'menu', t:0, half:1, clock:0, halfLen:90, diff:1,
+  state:'menu', t:0, half:1, clock:0, halfLen:120, diff:1,
   msg:'', msgT:0, banner:null, bannerT:0,
   varPhase:0, varT:0, varScorer:null, varLineX:0,
   restart:null, ann:0, // goles anulados
@@ -479,8 +559,10 @@ function resetPositions(kickTeam){
 
 // ---------- Control humano ----------
 let controlled = null;
-function pickControlled(){
+let manualSwitchT = 0;
+function pickControlled(dt){
   const team = teams[0];
+  if(manualSwitchT>0) manualSwitchT -= dt;
   if(ball.owner && ball.owner.team===0){ controlled = ball.owner; return; }
   let best=null, bd=1e9;
   for(const p of team.players){
@@ -488,7 +570,12 @@ function pickControlled(){
     const d = dist2(p.x,p.z,ball.x,ball.z);
     if(d<bd){ bd=d; best=p; }
   }
-  if(best) controlled = best;
+  if(!controlled || controlled.gk){ controlled = best; return; }
+  if(manualSwitchT>0) return;
+  const dc = dist2(controlled.x,controlled.z,ball.x,ball.z);
+  // el que acaba de tocar el balón conserva el mando mientras siga cerca
+  if(ball.lastPlayer===controlled && dc < 220*220) return;
+  if(best && best!==controlled && bd < dc*0.55) controlled = best;
 }
 
 // ---------- Física del balón ----------
@@ -508,7 +595,7 @@ function updateBall(dt){
     const tx = o.x + o.dir*11.5, tz = o.z + 1.5;
     ball.x += (tx-ball.x)*Math.min(1, dt*15);
     ball.z += (tz-ball.z)*Math.min(1, dt*15);
-    ball.y = BALL_R + Math.abs(Math.sin(o.phase))*2.4;
+    ball.y = (o.gk? 26 : BALL_R) + Math.abs(Math.sin(o.phase))*2.4;
     ball.vx = o.vx; ball.vz = o.vz; ball.vy = 0;
     ball.rot += (o.spd*dt)/BALL_R * 0.9 * o.dir;
     return;
@@ -525,18 +612,109 @@ function updateBall(dt){
   ball.rot += (sp*dt)/BALL_R * 0.6 * (ball.vx>=0?1:-1);
   if(ball.y <= BALL_R){
     ball.y = BALL_R;
-    if(ball.vy < -30){ ball.vy = -ball.vy*0.55; Snd.noise(.06,.06,600); if(sp>140) grassBurst(ball.x,ball.z,ball.vx*.2,ball.vz*.2,3); }
+    if(ball.vy < -25){ ball.vy = -ball.vy*0.62; Snd.noise(.06,.06,600); if(sp>140) grassBurst(ball.x,ball.z,ball.vx*.2,ball.vz*.2,3); }
     else ball.vy = 0;
-    const fr = Math.pow(0.55, dt);
+    const fr = Math.pow(0.45, dt);
     ball.vx *= fr; ball.vz *= fr;
-    if(Math.hypot(ball.vx,ball.vz) < 6){ ball.vx=0; ball.vz=0; }
+    if(Math.hypot(ball.vx,ball.vz) < 5){ ball.vx=0; ball.vz=0; }
   } else {
-    const air = Math.pow(0.86, dt);
+    const air = Math.pow(0.92, dt);
     ball.vx *= air; ball.vz *= air;
   }
   // postes y red
   checkGoalStructure();
 }
+/* ── Golpeo por contacto, al estilo Match Day II ──────────────────
+   Nadie "lleva" el balón pegado al pie: se toca cuando se alcanza.
+   La intención (conducir, pasar, chutar) se decide antes y se
+   aplica en el instante del contacto.                             */
+function setIntent(p, type, tx, tz, power, lift){
+  p.intent = {type:type, tx:tx, tz:tz, power:power||0, lift:lift||0};
+  p.intentT = 0.55;
+}
+function ballContacts(dt){
+  if(G.state!=='play') return;
+  for(const p of allPlayers){
+    if(p.intentT>0){ p.intentT-=dt; if(p.intentT<=0) p.intent=null; }
+    if(p.touchCd>0){ p.touchCd-=dt; continue; }
+    if(ball.owner) return;                       // el portero lo tiene blocado
+    if(p.stun>0) continue;
+    const reach = TOUCH_R + (p.slideT>0 ? 9 : 0) + (p.gk ? (p.slideT>0 ? 22 : 9) : 0);
+    if(dist(p.x,p.z,ball.x,ball.z) > reach) continue;
+    const maxH = p.slideT>0 ? 22 : 56;           // por encima de la cabeza, pasa de largo
+    if(ball.y > maxH) continue;
+    if(p.gk){ gkTouch(p); if(ball.owner) return; continue; }
+    doTouch(p);
+  }
+}
+function gkTouch(p){
+  const sp = Math.hypot(ball.vx, ball.vz);
+  const skill = p.team===0 ? 0.88 : DIFF[G.diff].gk;
+  const catchP = clamp(1.15 - sp/820, 0.12, 1) * (0.45 + skill*0.55);
+  ball.lastTouch = p.team; ball.lastPlayer = p;
+  if(Math.random() < catchP){
+    ball.owner = p; p.tmp = 0.95; ball.vx=ball.vy=ball.vz=0;
+    Snd.noise(.1,.12,300);
+    if(sp>320) say(pick(CM_SAVE));
+  } else {                                        // rechaza como puede
+    const d = teams[p.team].dir;
+    ball.vx = -ball.vx*0.3 + d*rnd(180,320);
+    ball.vz = ball.vz*0.35 + rnd(-110,110);
+    ball.vy = rnd(140,240);
+    p.touchCd = 0.45; p.slideT = Math.max(p.slideT, 0.4);
+    Snd.noise(.12,.16,460);
+    say(p.team===1 ? '¡El troll sólo acierta a despejarla!' : 'Despeja el guardameta.');
+  }
+}
+function doTouch(p){
+  const sp = Math.hypot(p.vx, p.vz);
+  let dirx = sp>14 ? p.vx/sp : p.dir, dirz = sp>14 ? p.vz/sp : 0;
+  const bsp = Math.hypot(ball.vx, ball.vz);
+  const aerial = ball.y > 26;
+  const it = p.intent;
+
+  // ¿el balón viene de frente? entonces es un rechace, no un control
+  const closing = bsp>60 && (ball.vx*dirx + ball.vz*dirz) < -bsp*0.25;
+
+  ball.lastTouch = p.team; ball.lastPlayer = p; ball.owner = null;
+
+  if(it && (it.type==='shoot' || it.type==='pass')){
+    const dx = it.tx-ball.x, dz = it.tz-ball.z, d = Math.hypot(dx,dz)||1;
+    let pw = it.power;
+    if(aerial) pw *= 0.85;                       // de volea se controla peor
+    ball.vx = dx/d*pw + rnd(-14,14);
+    ball.vz = dz/d*pw + rnd(-14,14);
+    ball.vy = it.lift + (aerial? 70 : 0) + (ball.y>2? 0:0);
+    ball.spin = it.type==='shoot' ? rnd(-.25,.25) : 0;
+    p.kickT = 0.32; p.state='kick'; p.st=0; p.touchCd = 0.42;
+    p.intent = null; p.intentT = 0;
+    if(it.type==='shoot') teams[p.team].shots++;
+    if(it.type==='pass' && p===controlled && p.passTo){ controlled = p.passTo; manualSwitchT = 0.9; }
+    Snd.kick(clamp(pw/820,0,1));
+    grassBurst(ball.x, ball.z, dx/d*90, dz/d*90, aerial?3:6);
+    return;
+  }
+
+  if(closing || (bsp > 300 && !aerial && sp < 40)){
+    // deflexión: el balón rebota en el jugador
+    const mix = 0.42;
+    ball.vx = -ball.vx*mix + dirx*(90+sp*0.5) + rnd(-40,40);
+    ball.vz = -ball.vz*mix + dirz*(90+sp*0.5) + rnd(-40,40);
+    ball.vy = Math.max(ball.vy*0.3, aerial? 60 : 110);
+    p.touchCd = 0.34; p.kickT = 0.18;
+    Snd.kick(.25);
+    return;
+  }
+
+  // toque de conducción: el balón sale por delante y hay que ir a por él
+  const push = 26 + sp*0.90;
+  ball.vx = dirx*push; ball.vz = dirz*push;
+  if(aerial){ ball.vy = -Math.abs(ball.vy)*0.35; }   // lo baja con el pecho
+  else if(ball.y<=BALL_R+1.5) ball.vy = 0;
+  p.touchCd = 0.26;
+  Snd.kick(.08);
+}
+
 function checkGoalStructure(){
   for(const gx of [0, LEN]){
     const side = gx===0 ? 1 : -1; // hacia dentro del campo
@@ -558,14 +736,14 @@ function checkGoalStructure(){
 
 // ---------- Jugadores: movimiento ----------
 function movePlayer(p, tx, tz, sprint, dt){
-  const base = p.gk ? 190 : 232;
+  const base = p.gk ? 172 : 156;
   const dm = p.team===0 ? 1 : DIFF[G.diff].spd;
-  let maxs = base*dm*(sprint?1.29:1);
+  let maxs = base*dm*(sprint?1.26:1);
   if(p.stun>0) maxs *= 0.25;
   const dx = tx - p.x, dz = tz - p.z, d = Math.hypot(dx,dz);
   let ax=0, az=0;
   if(d>1){ ax = dx/d*maxs; az = dz/d*maxs; }
-  const acc = 1 - Math.pow(0.0006, dt);
+  const acc = 1 - Math.pow(0.035, dt);     // arrancar y frenar cuesta
   p.vx += (ax-p.vx)*acc; p.vz += (az-p.vz)*acc;
   const s = Math.hypot(p.vx,p.vz);
   if(s>maxs){ p.vx = p.vx/s*maxs; p.vz = p.vz/s*maxs; }
@@ -609,34 +787,15 @@ function separate(dt){
       a.x-=nx; a.z-=nz; b.x+=nx; b.z+=nz;
       if((a.slideT>0)!==(b.slideT>0)){
         const slider = a.slideT>0?a:b, other = a.slideT>0?b:a;
-        if(ball.owner===other && other.team!==slider.team){
-          ball.owner=null; ball.lastTouch=slider.team;
-          ball.vx=slider.vx*0.65+rnd(-40,40); ball.vz=slider.vz*0.65+rnd(-40,40); ball.vy=110;
-          other.stun=0.55; other.ownCd=0.7; slider.ownCd=0.12;
+        if(other.team!==slider.team && other.stun<=0){
+          other.stun = 0.6; other.touchCd = Math.max(other.touchCd, 0.5);
+          other.vx *= 0.2; other.vz *= 0.2;
           Snd.noise(.16,.2,420); grassBurst(other.x,other.z,0,0,14);
-          if(other.team===0) say('¡Falta clarísima del troll! Pero el árbitro mira para otro lado.');
+          if(other.team===0 && Math.random()<0.5) say('¡Falta clarísima del troll! Pero el árbitro mira para otro lado.');
         }
       }
     }
   }
-}
-function tryOwn(p){
-  const d = dist(p.x,p.z,ball.x,ball.z);
-  const sp = Math.hypot(ball.vx,ball.vz);
-  const fast = clamp(1 - (sp-380)/760, 0.38, 1);        // un disparo fuerte es casi imparable
-  const reach = p.gk ? 21*Math.max(fast,0.62) : 15.5*fast;
-  const near = d < reach && ball.y < 34;
-  if(!near){ p.nearBall = false; return; }
-  const entering = !p.nearBall;                          // una sola oportunidad por pasada
-  p.nearBall = true;
-  if(ball.owner || p.ownCd>0 || p.stun>0 || G.state!=='play') return;
-  if(sp > 470){
-    if(!entering) return;
-    const skill = (p.gk?0.78:0.36) * fast + (p.team===0?0.10:0);
-    if(Math.random() > skill) return;
-  }
-  ball.owner = p; ball.lastTouch = p.team; p.ownCd = 0.05;
-  if(p.gk && sp>200){ Snd.noise(.1,.12,300); p.tmp = 0.7; }
 }
 
 // ---------- Portero ----------
@@ -649,11 +808,11 @@ function updateGK(p, dt){
   let tz = WID/2, tx = goalX + team.dir*(16 + clamp(toGoal*0.035,0,26));
   if(toGoal < 460){
     // predice
-    const tt = clamp(Math.abs(ball.x-goalX)/Math.max(220,Math.abs(ball.vx)), 0, .55);
+    const tt = clamp(Math.abs(ball.x-goalX)/Math.max(140,Math.abs(ball.vx)), 0, .8);
     const pz = ball.z + ball.vz*tt;
     const err = (1-skill)*95*Math.sin(G.t*1.7+p.idx);
     tz = clamp(pz + err, GZ0-24, GZ1+24);
-    if(toGoal < 120 && !ball.owner){ tx = goalX + team.dir*(26+toGoal*0.35); }
+    if(toGoal < 85 && !ball.owner){ tx = goalX + team.dir*(24+toGoal*0.28); }
   }
   if(ball.owner===p){
     // despeje del portero
@@ -672,34 +831,20 @@ function updateGK(p, dt){
     return;
   }
   movePlayer(p, tx, tz, toGoal<300, dt);
-  // parada / estirada
+  // estirada: si con ella llega al balón, lo tocará (lo decide el contacto)
   const bspd = Math.hypot(ball.vx,ball.vz);
-  if(!ball.owner && p.tackleCd<=0 && Math.abs(ball.x-goalX)<80 && sgn(ball.vx)!==team.dir && bspd>150){
+  if(!ball.owner && p.tackleCd<=0 && Math.abs(ball.x-goalX)<165 &&
+     sgn(ball.vx)!==team.dir && bspd>170 && ball.y<GOAL_H+12){
     const dz = ball.z - p.z;
-    const reach = 17 + skill*17;                     // alcance real de la estirada
-    const powerFactor = clamp(1 - (bspd-500)/900, 0.45, 1);   // los cañonazos son más difíciles
-    const highFactor  = ball.y > GOAL_H*0.6 ? 0.65 : 1;       // por la escuadra, más complicado
-    if(Math.abs(dz) < reach && ball.y < GOAL_H+10){
-      p.tackleCd = 0.5;
-      const saveChance = (0.34 + skill*0.5) * powerFactor * highFactor * (p.team===1 ? (0.34+dm.gk*0.3) : 0.92);
-      p.diveDir = sgn(dz)||1;
-      p.slideT = 0.55; p.state='dive';
-      if(Math.random() < saveChance){
-        ball.vx = -ball.vx*0.5 + team.dir*200; ball.vz = dz*2.2 + rnd(-70,70); ball.vy = 200;
-        ball.lastTouch = p.team;
-        Snd.noise(.14,.18,500); Snd.burst(.3,.5);
-        say(pick(CM_SAVE));
-      } else {
-        p.ownCd = Math.max(p.ownCd, 0.6);   // se le escapa
-        if(p.team===1 && Math.random()<0.5){
-          p.diveDir = -p.diveDir;
-          say('¡El troll se ha tirado al revés!');
-        }
-      }
+    if(Math.abs(dz) < 34 + skill*30){
+      p.tackleCd = 0.75; p.diveDir = sgn(dz)||1;
+      p.slideT = 0.5; p.state='dive';
+      p.vz = p.diveDir*(150+skill*160); p.vx = team.dir*40;
+      Snd.noise(.1,.1,520);
     }
   }
-}
 
+}
 // ---------- IA de campo ----------
 function bestPassTarget(p){
   const team = teams[p.team];
@@ -707,11 +852,10 @@ function bestPassTarget(p){
   for(const m of team.players){
     if(m===p || m.gk) continue;
     const d = dist(p.x,p.z,m.x,m.z);
-    if(d<40 || d>620) continue;
+    if(d<50 || d>560) continue;
     const adv = (m.x-p.x)*team.dir;
     let sc = adv*1.2 - d*0.35;
-    // penaliza si hay rival en la línea
-    for(const o of teams[1-p.team].players){
+    for(const o of teams[1-p.team].players){          // ¿hay alguien en la línea de pase?
       const t = ((o.x-p.x)*(m.x-p.x)+(o.z-p.z)*(m.z-p.z))/Math.max(1,d*d);
       if(t>0 && t<1){
         const lx = p.x+(m.x-p.x)*t, lz = p.z+(m.z-p.z)*t;
@@ -727,135 +871,163 @@ function goalTarget(team){
   const gx = team.dir>0 ? LEN : 0;
   return {x:gx, z:WID/2};
 }
+function nearestToBall(team, exclGK){
+  let best=null, bd=1e9;
+  for(const m of teams[team].players){
+    if(exclGK && m.gk) continue;
+    const d = dist2(m.x, m.z, ball.x+ball.vx*0.25, ball.z+ball.vz*0.25);
+    if(d<bd){ bd=d; best=m; }
+  }
+  return best;
+}
 function updateAI(p, dt){
   const team = teams[p.team];
   const dm = DIFF[G.diff];
   const foe = teams[1-p.team];
   const gt = goalTarget(team);
-  const owner = ball.owner;
+  const react = p.team===0 ? 0.85 : dm.react;
 
-  if(owner===p){
-    // con balón
-    const distGoal = Math.abs(gt.x-p.x);
-    const react = p.team===0 ? 0.85 : dm.react;
-    p.tmp -= dt;
-    let pressure=0, nearestFoe=null, nd=1e9;
-    for(const o of foe.players){ const d=dist(p.x,p.z,o.x,o.z); if(d<nd){nd=d;nearestFoe=o;} if(d<60) pressure++; }
-    if(distGoal < 250 + react*150 && Math.abs(p.z-WID/2) < 260 && p.tmp<=0){
-      // los trolls tienen menos puntería: a menudo se va fuera
-      const spread = p.team===1 ? GOAL_W*(0.95-react*0.28) : GOAL_W*0.5;
-      const aimZ = clamp(WID/2 + rnd(-1,1)*spread, GZ0-70, GZ1+70);
-      kickBall(p, 760+rnd(0,200)+react*110, 70+rnd(0,90), gt.x, aimZ, rnd(-.3,.3));
-      teams[p.team].shots++;
-      return;
-    }
-    if((pressure>0 && Math.random()<dt*(1.6+react)) || nd<34){
-      const m = bestPassTarget(p);
-      if(m){ const lead = m.vx*0.28;
-        kickBall(p, clamp(dist(p.x,p.z,m.x,m.z)*2.0+180, 260, 800), 40, m.x+lead, m.z, 0);
-        return; }
-    }
-    // conduce hacia portería esquivando
-    let tz = p.z;
-    if(nearestFoe && nd<95){ tz = p.z + sgn(p.z-nearestFoe.z || 1)*70; }
-    else tz = lerp(p.z, clamp(WID/2 + Math.sin(G.t*0.6+p.idx)*100, 60, WID-60), 0.02);
-    movePlayer(p, gt.x, clamp(tz,40,WID-40), true, dt);
-    return;
+  const chaser = nearestToBall(p.team, true);
+  const rivalChaser = nearestToBall(1-p.team, true);
+  // en el propio tercio defiende también el segundo más cercano
+  let support = null;
+  const ownGoalX = team.dir>0 ? 0 : LEN;
+  if(Math.abs(ball.x-ownGoalX) < LEN*0.42){
+    let bd=1e9;
+    for(const m of team.players){ if(m.gk||m===chaser) continue;
+      const d = dist2(m.x,m.z,ball.x,ball.z); if(d<bd){ bd=d; support=m; } }
+    if(support && bd > 260*260) support = null;
   }
+  const teamNearer = chaser && rivalChaser &&
+      dist2(chaser.x,chaser.z,ball.x,ball.z) < dist2(rivalChaser.x,rivalChaser.z,ball.x,ball.z);
 
-  // sin balón
-  const teamHas = owner && owner.team===p.team;
-  let closest=null, cd=1e9;
-  for(const m of team.players){ if(m.gk) continue; const d=dist2(m.x,m.z,ball.x,ball.z); if(d<cd){cd=d;closest=m;} }
+  if(chaser===p || support===p){
+    // va a por el balón: decide qué hará al tocarlo
+    const dBall = dist(p.x,p.z,ball.x,ball.z);
+    const distGoal = Math.abs(gt.x-ball.x);
+    let pressure=0, nd=1e9, nearestFoe=null;
+    for(const o of foe.players){ const d=dist(p.x,p.z,o.x,o.z); if(d<nd){nd=d;nearestFoe=o;} if(d<70) pressure++; }
 
-  if(!teamHas && closest===p){
-    // presiona el balón
-    const lead = ball.owner ? 0.16 : 0.24;
-    const tx = ball.x + ball.vx*lead, tz = ball.z + ball.vz*lead;
-    movePlayer(p, tx, tz, true, dt);
-    if(owner && owner.team!==p.team){
-      const d = dist(p.x,p.z,owner.x,owner.z);
-      if(d<30 && p.tackleCd<=0 && Math.random()< dt*2.2*dm.tackle){
-        p.slideT = 0.5; p.tackleCd = 1.6;
-        p.vx = sgn(owner.x-p.x)*300; p.vz = (owner.z-p.z)*3;
+    if(dBall < 90 && !p.intent){
+      if(distGoal < 235 + react*125 && Math.abs(ball.z-WID/2) < 225){
+        const spread = p.team===1 ? GOAL_W*(0.9-react*0.3) : GOAL_W*0.45;
+        const aimZ = clamp(WID/2 + rnd(-1,1)*spread, GZ0-60, GZ1+60);
+        setIntent(p, 'shoot', gt.x, aimZ, 470+rnd(0,110)+react*80, 55+rnd(0,60));
+      } else if(pressure>0 && Math.random() < 0.55+react*0.3){
+        const m = bestPassTarget(p);
+        if(m) setIntent(p, 'pass', m.x+m.vx*0.3, m.z, clamp(dist(p.x,p.z,m.x,m.z)*1.5+140, 210, 520), 30);
+        else setIntent(p, 'drive', gt.x, ball.z, 0, 0);
+      } else {
+        setIntent(p, 'drive', gt.x, ball.z, 0, 0);
+      }
+    }
+    // persigue el punto de intercepción
+    const lead = clamp(dBall/240, 0.08, 0.42);
+    let tx = ball.x + ball.vx*lead, tz = ball.z + ball.vz*lead;
+    if(p.intent && p.intent.type==='drive' && dBall < 34){
+      // se coloca detrás del balón para empujarlo hacia la portería
+      const gx = gt.x, dx = gx-ball.x, dz2 = WID/2-ball.z, dd = Math.hypot(dx,dz2)||1;
+      tx = ball.x - dx/dd*9; tz = ball.z - dz2/dd*9;
+      if(nearestFoe && nd<80) tz += sgn(p.z-nearestFoe.z || 1)*24;
+    }
+    movePlayer(p, tx, clamp(tz,25,WID-18), dBall>40, dt);
+    // entrada al rival que conduce
+    if(!teamNearer && rivalChaser && p.tackleCd<=0){
+      const d = dist(p.x,p.z,rivalChaser.x,rivalChaser.z);
+      if(d<34 && dist(rivalChaser.x,rivalChaser.z,ball.x,ball.z)<34 && Math.random()< dt*1.5*dm.tackle){
+        p.slideT = 0.5; p.tackleCd = 2.0;
+        const dd = Math.hypot(ball.x-p.x, ball.z-p.z)||1;
+        p.vx = (ball.x-p.x)/dd*250; p.vz = (ball.z-p.z)/dd*250;
         grassBurst(p.x,p.z,p.vx,p.vz,10); Snd.noise(.18,.14,380);
       }
-      if(d<15 && Math.random()<dt*2.6*dm.tackle){
-        ball.owner=p; ball.lastTouch=p.team; owner.stun=0.3; owner.ownCd=0.65;
-      }
     }
     return;
   }
-  // posición táctica
-  const s = slotPos(p.team, p.idx);
-  let tx=s.x, tz=s.z;
-  if(teamHas){
-    tx += team.dir*clamp((ball.x-s.x)*0.25, -90, 150);
-    tz = lerp(s.z, clamp(ball.z + (s.zf>0.5?110:-110), 45, WID-45), 0.4);
-    if(p.role==='FW') tx = clamp(tx, Math.min(ball.x,gt.x)-90*team.dir, gt.x - team.dir*70);
+
+  // resto del equipo: posición táctica
+  const s2 = slotPos(p.team, p.idx);
+  let tx=s2.x, tz=s2.z;
+  if(teamNearer){
+    tx += team.dir*clamp((ball.x-s2.x)*0.28, -80, 170);
+    tz = lerp(s2.z, clamp(ball.z + (FORM[p.idx].zf>0.5?120:-120), 45, WID-45), 0.45);
+    if(p.role==='FW') tx = clamp(tx, Math.min(ball.x,gt.x)-90*team.dir, gt.x - team.dir*80);
   } else {
-    // marca al rival más cercano a su zona
     let mk=null, md=1e9;
     for(const o of foe.players){ if(o.gk) continue;
-      const d = dist2(o.x,o.z,s.x,s.z); if(d<md){md=d;mk=o;} }
-    if(mk && md < 300*300){ tx = lerp(s.x, mk.x - team.dir*26, 0.55); tz = lerp(s.z, mk.z, 0.6); }
+      const d = dist2(o.x,o.z,s2.x,s2.z); if(d<md){md=d;mk=o;} }
+    if(mk && md < 300*300){ tx = lerp(s2.x, mk.x - team.dir*26, 0.55); tz = lerp(s2.z, mk.z, 0.6); }
   }
-  tz += Math.sin(G.t*0.7 + p.idx*2.1)*16;
-  movePlayer(p, tx, clamp(tz,35,WID-25), dist2(p.x,p.z,tx,tz)>200*200, dt);
+  tz += Math.sin(G.t*0.6 + p.idx*2.1)*14;
+  movePlayer(p, tx, clamp(tz,35,WID-25), dist2(p.x,p.z,tx,tz)>260*260, dt);
 }
 
 // ---------- Control del jugador humano ----------
+function humanTarget(p, forShot){
+  const gt = goalTarget(teams[0]);
+  const fwd = teams[0].dir;
+  let dx = Input.mx, dz = Input.mz;
+  if(Math.abs(dx)+Math.abs(dz) < 0.25){
+    const sp = Math.hypot(p.vx,p.vz);
+    if(sp>25){ dx = p.vx/sp; dz = p.vz/sp; } else { dx = p.dir; dz = 0; }
+  }
+  const distGoal = Math.abs(gt.x - ball.x);
+  if(forShot && dx*fwd > 0.25 && distGoal < 560){
+    return { tx: gt.x, tz: clamp(WID/2 + dz*(GOAL_W*0.44), GZ0+14, GZ1-14) };
+  }
+  return { tx: ball.x + dx*400, tz: ball.z + dz*400 };
+}
 function updateHuman(p, dt){
   const spr = Input.sprint;
-  const has = ball.owner===p;
   if(Math.abs(Input.mx)>0.05 || Math.abs(Input.mz)>0.05){
     movePlayer(p, p.x+Input.mx*400, p.z+Input.mz*400, spr, dt);
   } else {
-    p.vx *= Math.pow(0.0009,dt); p.vz *= Math.pow(0.0009,dt);
-    if(!has && Math.abs(ball.x-p.x)>6) p.dir = sgn(ball.x-p.x);
+    p.vx *= Math.pow(0.02,dt); p.vz *= Math.pow(0.02,dt);
+    if(Math.abs(ball.x-p.x)>8) p.dir = sgn(ball.x-p.x);
   }
-  const gt = goalTarget(teams[0]);
-  if(has){
-    if(!Input.shoot && Input.shootPrev){
-      const pw = 480 + Input.charge*680;
-      let aimZ = clamp(WID/2 + Input.mz*130, GZ0+12, GZ1-12);
-      let tx = gt.x, tz = aimZ;
-      const far = Math.abs(gt.x-p.x);
-      if(far > 700){ tx = p.x + teams[0].dir*600; tz = p.z + Input.mz*300; }
-      kickBall(p, pw, 55+Input.charge*135, tx, tz, Input.mx*teams[0].dir*0.15);
-      teams[0].shots++;
-      Input.charge = 0;
-    }
-    if(Input.pass && !Input.passPrev){
+  const dBall = dist(p.x,p.z,ball.x,ball.z);
+
+  // TIRO: la barra de potencia oscila mientras se mantiene pulsado;
+  // el golpeo se produce al alcanzar el balón.
+  if(Input.charge>0 && dBall < 150){
+    const t = humanTarget(p, true);
+    const pw = 300 + Input.charge*520;
+    setIntent(p, 'shoot', t.tx, t.tz, pw, 40 + Input.charge*130);
+    p.intentT = 0.7;
+  }
+  // PASE
+  if(Input.pass && !Input.passPrev){
+    if(dBall < 110){
       let best=null, bs=-1e9;
       for(const m of teams[0].players){
-        if(m===p) continue;
-        const d = dist(p.x,p.z,m.x,m.z); if(d<30||d>700) continue;
+        if(m===p || m.gk) continue;
+        const d = dist(p.x,p.z,m.x,m.z); if(d<40||d>620) continue;
         const dx=(m.x-p.x)/d, dz=(m.z-p.z)/d;
-        const align = (Input.mx*dx + Input.mz*dz);
-        const sc = (Math.abs(Input.mx)+Math.abs(Input.mz)>0.2 ? align*300 : (m.x-p.x)*teams[0].dir) - d*0.25 - (m.gk?200:0);
-        if(sc>bs){bs=sc;best=m;}
+        const aim = Math.abs(Input.mx)+Math.abs(Input.mz)>0.25;
+        const sc = (aim ? (Input.mx*dx + Input.mz*dz)*320 : (m.x-p.x)*teams[0].dir) - d*0.22;
+        if(sc>bs){ bs=sc; best=m; }
       }
-      if(best){ kickBall(p, clamp(dist(p.x,p.z,best.x,best.z)*2.1+170, 250, 820), 40, best.x+best.vx*0.25, best.z, 0);
-        controlled = best; }
-    }
-  } else {
-    if(!Input.shoot && Input.shootPrev && p.tackleCd<=0){
-      p.slideT=0.52; p.tackleCd=1.1;
-      const d = Math.hypot(p.vx,p.vz)||1;
-      p.vx = (p.vx/d)*330; p.vz=(p.vz/d)*330;
-      if(d<30){ p.vx = p.dir*330; p.vz=0; }
-      grassBurst(p.x,p.z,p.vx,p.vz,12); Snd.noise(.18,.12,380);
-      Input.charge=0;
-    }
-    if(Input.pass && !Input.passPrev){ // cambiar de jugador
+      if(best){
+        setIntent(p, 'pass', best.x+best.vx*0.35, best.z,
+                  clamp(dist(p.x,p.z,best.x,best.z)*1.45+150, 200, 560), 25);
+        p.passTo = best;
+      }
+    } else {           // lejos del balón: cambio de jugador
       let best=null,bd=1e9;
       for(const m of teams[0].players){ if(m===controlled||m.gk) continue;
         const d=dist2(m.x,m.z,ball.x,ball.z); if(d<bd){bd=d;best=m;} }
-      if(best) controlled = best;
+      if(best){ controlled = best; manualSwitchT = 1.2; }
     }
   }
-  if(!Input.shoot) Input.charge = 0;
+  // entrada / barrida al soltar el tiro lejos del balón
+  if(!Input.shoot && Input.shootPrev && dBall > 26 && p.tackleCd<=0){
+    p.slideT=0.5; p.tackleCd=1.4;
+    const d = Math.hypot(p.vx,p.vz)||1;
+    const bx = ball.x-p.x, bz = ball.z-p.z, bd2 = Math.hypot(bx,bz)||1;
+    if(dBall < 90){ p.vx = bx/bd2*260; p.vz = bz/bd2*260; }
+    else if(d>30){ p.vx = (p.vx/d)*250; p.vz=(p.vz/d)*250; }
+    else { p.vx = p.dir*250; p.vz=0; }
+    grassBurst(p.x,p.z,p.vx,p.vz,12); Snd.noise(.18,.12,380);
+  }
 }
 
 // ---------- Fuera de banda / gol ----------
@@ -888,9 +1060,18 @@ function giveTo(team, toGK){
     if(toGK ? !p.gk : p.gk) continue;
     const d = dist2(p.x,p.z,ball.x,ball.z); if(d<bd){bd=d;best=p;}
   }
-  if(best){ best.x = ball.x - best.dir*13; best.z = ball.z; ball.owner=best; best.ownCd=0; best.tmp=0.8; }
-  for(const p of allPlayers) p.ownCd = Math.max(p.ownCd, 0.35);
-  if(best) best.ownCd = 0;
+  ball.vx=ball.vy=ball.vz=0; ball.y=BALL_R; ball.owner=null; ball.lastTouch=team;
+  for(const p of allPlayers){ p.touchCd = Math.max(p.touchCd, 0.9); p.intent=null; p.intentT=0; }
+  if(!best) return;
+  if(toGK){
+    ball.owner = best; best.x = ball.x - teams[team].dir*9; best.z = ball.z;
+    best.tmp = 1.15; best.touchCd = 0;
+  } else {
+    const away = ball.z < WID/2 ? 1 : -1;
+    best.x = ball.x - sgn(ball.x - LEN/2 || 1)*4; best.z = ball.z + away*15;
+    best.vx = best.vz = 0; best.touchCd = 0.4;
+    if(team===0){ controlled = best; manualSwitchT = 1.1; }
+  }
 }
 
 function onGoal(gx){
@@ -1865,16 +2046,17 @@ function drawHUD(){
     ctx.save(); ctx.globalAlpha=a;
     ctx.font='bold 16px Trebuchet MS'; ctx.textAlign='left'; ctx.textBaseline='middle';
     const tw = ctx.measureText(G.msg).width;
-    ctx.fillStyle='rgba(6,14,10,.8)'; roundRect(22, VH-56, tw+50, 34, 8); ctx.fill();
-    ctx.fillStyle='#c8102e'; roundRect(22, VH-56, 6, 34, 3); ctx.fill();
-    ctx.fillStyle='#eafff2'; ctx.fillText(G.msg, 40, VH-39);
+    const bx = VW/2 - (tw+46)/2, by = 78;
+    ctx.fillStyle='rgba(6,14,10,.82)'; roundRect(bx, by, tw+46, 32, 8); ctx.fill();
+    ctx.fillStyle='#c8102e'; roundRect(bx, by, 6, 32, 3); ctx.fill();
+    ctx.fillStyle='#eafff2'; ctx.fillText(G.msg, bx+18, by+17);
     ctx.restore();
   }
 
   // barra de potencia
-  if(controlled && ball.owner===controlled && Input.charge>0.02 && G.state==='play'){
-    const p = proj(controlled.x, 84, controlled.z);
-    const w2=54, h2=7;
+  if(controlled && Input.charge>0.02 && G.state==='play'){
+    const p = proj(controlled.x, 78, controlled.z);
+    const w2=66, h2=9;
     ctx.fillStyle='rgba(0,0,0,.55)'; roundRect(p.sx-w2/2, p.sy-16, w2, h2, 3); ctx.fill();
     const g=ctx.createLinearGradient(p.sx-w2/2,0,p.sx+w2/2,0);
     g.addColorStop(0,'#7fe0a5'); g.addColorStop(.6,'#ffd166'); g.addColorStop(1,'#ff5252');
@@ -2039,8 +2221,9 @@ function step(dt){
       G.state='play'; Snd.whistle(1); Snd.amb(.12);
       const kt = teams[G.kickTeam];
       const kicker = kt.players[5];
-      ball.owner = kicker; kicker.ownCd=0;
-      if(G.kickTeam===0) controlled = kicker;
+      for(const q of allPlayers) q.touchCd = 0.55;
+      kicker.touchCd = 0;
+      if(G.kickTeam===0){ controlled = kicker; manualSwitchT = 1.2; }
     }
     return;
   }
@@ -2112,7 +2295,7 @@ function step(dt){
   }
 
   readInput(dt);
-  pickControlled();
+  pickControlled(dt);
 
   // jugadores
   for(const p of allPlayers){
@@ -2120,9 +2303,9 @@ function step(dt){
     else if(p.team===0 && p===controlled){ updateHuman(p, dt); }
     else updateAI(p, dt);
     integratePlayer(p, dt);
-    tryOwn(p);
   }
   separate(dt);
+  ballContacts(dt);
   updateBall(dt);
   updateRef(dt);
   outOfPlay();
@@ -2245,6 +2428,14 @@ function toMenu(){
   el('pauseBtn').style.display='none'; Snd.amb(.06);
   resetPositions(0);
 }
+function optGroupStr(id, cb){
+  const g = el(id);
+  g.addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    [...g.children].forEach(c=>c.classList.remove('sel'));
+    b.classList.add('sel'); cb(b.dataset.v);
+  });
+}
 function optGroup(id, cb){
   const g = el(id);
   g.addEventListener('click', e=>{
@@ -2255,9 +2446,10 @@ function optGroup(id, cb){
 }
 optGroup('optDur', v=> G.halfLen = v);
 optGroup('optDif', v=> G.diff = v);
+optGroupStr('optPad', v=>{ padMode = v; applyPadMode(); });
 
 // acceso para depuración / pruebas automatizadas
-window.ALBER = { G, teams, ball, allPlayers, referee, newMatch,
+window.ALBER = { G, teams, ball, allPlayers, referee, newMatch, Input, pad,
   get controlled(){ return controlled; }, proj, kickBall };
 
 // arranque
